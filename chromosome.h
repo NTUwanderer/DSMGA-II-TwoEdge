@@ -115,6 +115,8 @@ public:
     double nkFitness() const;
     double satFitness() const;
 
+    void printOut () const;
+
     int getLength () const;
     void setLength ();
 

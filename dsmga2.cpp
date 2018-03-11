@@ -106,8 +106,8 @@ int DSMGA2::doIt (bool output) {
     generation = 0;
     while (!shouldTerminate ()) {
         oneRun (output);
-       #ifdef DEBUG
-       cin.get();
+        #ifdef DEBUG
+        cin.get();
         #endif
     }
     return generation;
@@ -174,9 +174,14 @@ bool DSMGA2::foundOptima () {
 
 void DSMGA2::showStatistics () {
 
-    printf ("Gen:%d  Fitness:(Max/Mean/Min):%f/%f/%f \n ",
-            generation, stFitness.getMax (), stFitness.getMean (),
+    printf ("Gen: %d, NFE: %d  Fitness:(Max/Mean/Min):%f/%f/%f \n ",
+            generation, Chromosome::nfe, stFitness.getMax (), stFitness.getMean (),
             stFitness.getMin ());
+    printf ("best chromosome:");
+    population[bestIndex].printOut();
+    printf ("\n");
+
+
     fflush(NULL);
 }
 

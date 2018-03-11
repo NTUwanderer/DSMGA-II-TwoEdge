@@ -311,6 +311,12 @@ double Chromosome::mkTrap (double fHigh, double fLow) const {
     return result;
 }
 
+void Chromosome::printOut () const {
+    int i;
+    for (i = 0; i < length; i++)
+        printf ("%d", getVal(i));
+}
+
 
 int Chromosome::getLength () const {
     return length;
