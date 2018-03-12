@@ -28,6 +28,8 @@ main (int argc, char *argv[]) {
         printf ("     NK    :  4\n");
         printf ("     SPIN  :  5\n");
         printf ("     SAT   :  6\n");
+        printf ("     L_FTRAP  :  7\n");
+        printf ("     L_2FTRAP :  8\n");
 
         return -1;
     }

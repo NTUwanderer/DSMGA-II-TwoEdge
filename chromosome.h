@@ -22,7 +22,9 @@ public:
         CYCTRAP=3,
         NK=4,
         SPINGLASS=5,
-        SAT=6
+        SAT=6,
+        L_FTRAP=7,
+        L_2FTRAP=8
     } function;
 
 
@@ -114,6 +116,8 @@ public:
     double spinGlass () const;
     double nkFitness() const;
     double satFitness() const;
+    double l_fTrap() const;
+    double l_2fTrap() const;
 
     void printOut () const;
 

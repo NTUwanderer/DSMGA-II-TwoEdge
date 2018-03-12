@@ -139,6 +139,12 @@ double Chromosome::evaluate () {
         case SAT:
             accum = satFitness();
             break;
+        case L_FTRAP:
+            accum = l_fTrap();
+            break;
+        case L_2FTRAP:
+            accum = l_2fTrap();
+            break;
         default:
             accum = mkTrap(1, 0.8);
             break;
@@ -263,6 +269,106 @@ double Chromosome::fTrap() const {
     return result;
 }
 
+double Chromosome::l_fTrap() const {
+
+    double result = 0.0;
+
+    for (int i=0; i<length/10; ++i) {
+        int u=0;
+        for (int j=0; j<10; ++j)
+            u += getVal(i*10+j);
+
+        switch(u) {
+            case 0:
+                result += 1.0;
+                break;
+            case 1:
+                result += 0.0;
+                break;
+            case 2:
+                result += 0.2;
+                break;
+            case 3:
+                result += 0.4;
+                break;
+            case 4:
+                result += 0.6;
+                break;
+            case 5:
+                result += 0.8;
+                break;
+            case 6:
+                result += 0.6;
+                break;
+            case 7:
+                result += 0.4;
+                break;
+            case 8:
+                result += 0.2;
+                break;
+            case 9:
+                result += 0.0;
+                break;
+            case 10:
+                result += 1.0;
+                break;
+        }
+    }
+
+    return result;
+}
+
+double Chromosome::l_2fTrap() const {
+
+    double result = 0.0;
+
+    for (int i=0; i<length/10; ++i) {
+        int u=0;
+        for (int j=0; j<10; ++j)
+            u += getVal(i*10+j);
+
+        switch(u) {
+            case 0:
+                result += 1.0;
+                break;
+            case 1:
+                result += 0.0;
+                break;
+            case 2:
+                result += 0.4;
+                break;
+            case 3:
+                result += 0.8;
+                break;
+            case 4:
+                result += 0.4;
+                break;
+            case 5:
+                result += 0.0;
+                break;
+            case 6:
+                result += 0.3;
+                break;
+            case 7:
+                result += 0.6;
+                break;
+            case 8:
+                result += 0.3;
+                break;
+            case 9:
+                result += 0.0;
+                break;
+            case 10:
+                result += 1.0;
+                break;
+
+        }
+    }
+
+    return result;
+}
+
+
 double Chromosome::cycTrap(double fHigh, double fLow) const {
     int i, j;
     int u;
@@ -347,6 +453,12 @@ double Chromosome::getMaxFitness () const {
             break;
         case SAT:
             maxF = 0;
+            break;
+        case L_FTRAP:
+            maxF = length/10;
+            break;
+        case L_2FTRAP:
+            maxF = length/10;
             break;
         default:
             // Never converge

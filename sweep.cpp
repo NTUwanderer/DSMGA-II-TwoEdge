@@ -28,7 +28,7 @@ struct Record {
 int main (int argc, char *argv[]) {
 
     if (argc != 4 && argc!=5 && argc !=6 && argc != 7) {
-        printf ("sweep ell numConvergence function(0~3)\n");
+        printf ("sweep ell numConvergence function(0~3, 7, 8)\n");
         printf ("sweep ell numConvergence 4 [step #] [nk problem #]\n");
         printf ("sweep ell numConvergence 5 [spin problem #]\n");
         printf ("sweep ell numConvergence 6 [sat problem #]\n");
@@ -40,6 +40,8 @@ int main (int argc, char *argv[]) {
         printf ("     NK    :  4\n");
         printf ("     SPIN  :  5\n");
         printf ("     SAT   :  6\n");
+        printf ("     L_FTRAP  : 7\n");
+        printf ("     L_2FTRAP : 8\n");
         return -1;
     }
 
