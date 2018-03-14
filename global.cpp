@@ -13,6 +13,7 @@
 #include "zkey.h"
 #include "chromosome.h"
 #include "sat.h"
+#include "mkp.h"
 
 int maxMemory = 0;
 
@@ -35,6 +36,7 @@ BitwiseDistance myBD;
 SPINinstance mySpinGlassParams;
 NKWAProblem nkwa;
 SATinstance mySAT;
+MKPinstance myMKP;
 
 
 void outputErrMsg(const char *errMsg) {

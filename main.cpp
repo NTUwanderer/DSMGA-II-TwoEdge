@@ -30,6 +30,7 @@ main (int argc, char *argv[]) {
         printf ("     SAT   :  6\n");
         printf ("     L_FTRAP  :  7\n");
         printf ("     L_2FTRAP :  8\n");
+        printf ("     MKP   :  9\n");
 
         return -1;
     }
@@ -70,6 +71,14 @@ main (int argc, char *argv[]) {
         sprintf(filename, "./SAT/uf%d/uf%d-0%d.cnf", ell, ell, s_num);
         if (SHOW_BISECTION) printf("Loading: %s\n", filename);
         loadSAT(filename, &mySAT);
+    }
+
+    if (fffff == 9) {
+        char filename[200];
+        sprintf(filename, "./All-MKP-Instances/sac94/weish/weish%02d.dat", s_num);
+        if (SHOW_BISECTION) printf("Loading: %s\n", filename);
+        loadMKP(filename, &myMKP);
+        ell = myMKP.var;
     }
 
 
@@ -115,6 +124,7 @@ main (int argc, char *argv[]) {
     printf ("NFE: %f\n", stFE.getMean());
 
     if (fffff == 4) freeNKWAProblem(&nkwa);
+    if (fffff == 9) freeMKPinstance(&myMKP);
 
     return EXIT_SUCCESS;
 }

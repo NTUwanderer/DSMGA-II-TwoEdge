@@ -8,6 +8,7 @@
 #include "chromosome.h"
 #include "nk-wa.h"
 #include "sat.h"
+#include "mkp.h"
 
 #define TRAP_K 5
 
@@ -144,6 +145,9 @@ double Chromosome::evaluate () {
             break;
         case L_2FTRAP:
             accum = l_2fTrap();
+            break;
+        case MKP:
+            accum = mkpFitness();
             break;
         default:
             accum = mkTrap(1, 0.8);
@@ -460,6 +464,9 @@ double Chromosome::getMaxFitness () const {
         case L_2FTRAP:
             maxF = length/10;
             break;
+        case MKP:
+            maxF = myMKP.opt;
+            break;
         default:
             // Never converge
             maxF = INF;
@@ -523,5 +530,16 @@ double Chromosome::satFitness() const {
 
     double result = evaluateSAT(x, &mySAT);
     delete []x;
+    return result;
+}
+
+double Chromosome::mkpFitness() const {
+    int *x = new int[length];
+
+    for(int i = 0; i < length; ++i) {
+        x[i] = getVal(i);
+    }
+    double result = evaluateMKP(x, &myMKP);
+    delete[] x;
     return result;
 }

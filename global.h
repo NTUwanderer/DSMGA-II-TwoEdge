@@ -18,6 +18,7 @@
 #include "doublelinkedlistarray.h"
 #include "zkey.h"
 #include "sat.h"
+#include "mkp.h"
 
 //#define EPSILON (1e-6)
 #define EPSILON (1e-8)
@@ -38,6 +39,7 @@ extern MyRand myRand;
 extern BitwiseDistance myBD;
 extern SPINinstance mySpinGlassParams;
 extern SATinstance mySAT;
+extern MKPinstance myMKP;
 
 extern NKWAProblem nkwa;
 

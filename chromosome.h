@@ -24,7 +24,8 @@ public:
         SPINGLASS=5,
         SAT=6,
         L_FTRAP=7,
-        L_2FTRAP=8
+        L_2FTRAP=8,
+        MKP=9
     } function;
 
 
@@ -116,6 +117,7 @@ public:
     double spinGlass () const;
     double nkFitness() const;
     double satFitness() const;
+    double mkpFitness() const;
     double l_fTrap() const;
     double l_2fTrap() const;
 
