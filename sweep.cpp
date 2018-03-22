@@ -32,6 +32,7 @@ int main (int argc, char *argv[]) {
         printf ("sweep ell numConvergence 4 [step #] [nk problem #]\n");
         printf ("sweep ell numConvergence 5 [spin problem #]\n");
         printf ("sweep ell numConvergence 6 [sat problem #]\n");
+        printf ("sweep ell numConvergence 9 [mkp problem #]\n");
         printf ("function: \n");
         printf ("     ONEMAX:  0\n");
         printf ("     MK    :  1\n");
@@ -42,6 +43,7 @@ int main (int argc, char *argv[]) {
         printf ("     SAT   :  6\n");
         printf ("     L_FTRAP  : 7\n");
         printf ("     L_2FTRAP : 8\n");
+        printf ("     MKP   :  9\n");
         return -1;
     }
 
@@ -60,7 +62,7 @@ int main (int argc, char *argv[]) {
         problemNum = atoi (argv[5]);
     }
 
-    if (fffff == 5 || fffff == 6) {
+    if (fffff == 5 || fffff == 6 || fffff == 9) {
         problemNum = atoi (argv[4]);
     }
 
@@ -98,6 +100,14 @@ int main (int argc, char *argv[]) {
         sprintf(filename, "./SAT/uf%d/uf%d-0%d.cnf",ell,ell,problemNum);
         if (SHOW_BISECTION) printf("Loading: %s\n", filename);
         loadSAT(filename, &mySAT);
+    }
+    
+    if (fffff == 9) {
+        char filename[200];
+        sprintf(filename, "./All-MKP-Instances/sac94/weish/weish%02d.dat", problemNum);
+        if (SHOW_BISECTION) printf("Loading: %s\n", filename);
+        loadMKP(filename, &myMKP);
+        ell = myMKP.var;
     }
 
 
@@ -370,6 +380,9 @@ int main (int argc, char *argv[]) {
 
     if (fffff == 4)
         freeNKWAProblem(&nkwa);
+
+    if (fffff == 9)
+        freeMKPinstance(&myMKP);
 
     printf("population: %d\n", rec[1].n);
     printf("generation: %f\n", rec[1].gen);
