@@ -14,6 +14,7 @@
 #include "trimatrix.h"
 #include "doublelinkedlistarray.h"
 #include "fastcounting.h"
+#include <fstream>
 
 class DSMGA2 {
 public:
@@ -37,8 +38,8 @@ public:
     // ****
     void restrictedMixing(Chromosome&);
     bool restrictedMixing(Chromosome& ch, list<int>& mask);
-    void backMixing(Chromosome& source, list<int>& mask, Chromosome& des);
-    void backMixingE(Chromosome& source, list<int>& mask, Chromosome& des);
+    bool backMixing(Chromosome& source, list<int>& mask, Chromosome& des);
+    bool backMixingE(Chromosome& source, list<int>& mask, Chromosome& des);
 
     bool shouldTerminate ();
 
@@ -50,6 +51,7 @@ public:
 
     bool isInP(const Chromosome& ) const;
     void genOrderN();
+    void genDistN();
     void genOrderELL();
 
     void showStatistics ();
@@ -102,6 +104,12 @@ public:
     double lastMax, lastMean, lastMin;
     int convergeCount;
 
+    Chromosome currentCh;
+    bool compareDist(int i, int j) {
+        return currentCh.dist(population[i]) < currentCh.dist(population[j]);
+    }
+
+    ofstream myfile;
 };
 
 

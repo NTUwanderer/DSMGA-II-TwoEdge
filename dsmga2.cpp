@@ -20,6 +20,7 @@ using namespace std;
 
 DSMGA2::DSMGA2 (int n_ell, int n_nInitial, int n_maxGen, int n_maxFe, int fffff) {
 
+    myfile.open("output.txt");
 
     previousFitnessMean = -INF;
     ell = n_ell;
@@ -65,6 +66,7 @@ DSMGA2::DSMGA2 (int n_ell, int n_nInitial, int n_maxGen, int n_maxFe, int fffff)
 
 
 DSMGA2::~DSMGA2 () {
+    myfile.close();
     delete []masks;
     delete []orderN;
     delete []orderELL;
@@ -320,15 +322,38 @@ void DSMGA2::restrictedMixing(Chromosome& ch) {
     EQ = true;
     if (taken) {
     
-        genOrderN();
+        // genOrderN();
+        currentCh = ch;
+        genDistN();
 
+        int lastDist = -1;
+        int cntSuccess = 0;
+        bool success;
+        // myfile << Chromosome::nfe << ": ";
         for (int i=0; i<nCurrent; ++i) {
-
             if (EQ)
-                backMixingE(ch, mask, population[orderN[i]]);
+                success = backMixingE(ch, mask, population[orderN[i]]);
             else
-                backMixing(ch, mask, population[orderN[i]]);
+                success = backMixing(ch, mask, population[orderN[i]]);
+
+            /*
+            int cDist = currentCh.dist(population[orderN[i]]);
+            if (cDist > lastDist) {
+
+                if (i != 0) {
+                    myfile << "," << lastDist << ":" << 1.0 * cntSuccess / i;
+                }
+                lastDist = cDist;
+            }
+            */
+
+            if (success)
+                ++cntSuccess;
+
+            if (i > nCurrent / 10 && 2 * success < i + 1)
+                break;
         }
+        myfile << endl;
     }
 
 }
@@ -386,7 +411,7 @@ void DSMGA2::findMask_size(Chromosome& ch, list<int>& result,int startNode,int b
   
 }
 
-void DSMGA2::backMixing(Chromosome& source, list<int>& mask, Chromosome& des) {
+bool DSMGA2::backMixing(Chromosome& source, list<int>& mask, Chromosome& des) {
 
     Chromosome trial(ell);
     trial = des;
@@ -398,12 +423,13 @@ void DSMGA2::backMixing(Chromosome& source, list<int>& mask, Chromosome& des) {
         pHash[trial.getKey()] = trial.getFitness();
         des = trial;
           
-        return;
+        return true;
     }
 
+    return false;
 }
 
-void DSMGA2::backMixingE(Chromosome& source, list<int>& mask, Chromosome& des) {
+bool DSMGA2::backMixingE(Chromosome& source, list<int>& mask, Chromosome& des) {
 
     Chromosome trial(ell);
     trial = des;
@@ -417,7 +443,7 @@ void DSMGA2::backMixingE(Chromosome& source, list<int>& mask, Chromosome& des) {
         EQ = false;
         des = trial;
 
-return;
+        return true;
     }
 
     //2016-10-21
@@ -426,9 +452,10 @@ return;
         pHash[trial.getKey()] = trial.getFitness();
 
         des = trial;
-        return;
+        return true;
     }
 
+    return false;
 }
 
 bool DSMGA2::restrictedMixing(Chromosome& ch, list<int>& mask) {
@@ -558,6 +585,11 @@ inline bool DSMGA2::isInP(const Chromosome& ch) const {
 
 inline void DSMGA2::genOrderN() {
     myRand.uniformArray(orderN, nCurrent, 0, nCurrent-1);
+}
+
+inline void DSMGA2::genDistN() {
+    myRand.uniformArray(orderN, nCurrent, 0, nCurrent-1);
+    sort(orderN, orderN + nCurrent);
 }
 
 inline void DSMGA2::genOrderELL() {

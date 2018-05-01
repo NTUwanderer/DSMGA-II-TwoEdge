@@ -124,6 +124,15 @@ public:
     void printOut () const;
 
     int getLength () const;
+    int dist(const Chromosome& ch) const {
+        int d = 0;
+        for (int i = 0; i < length; ++i) {
+            if (getVal(i) != ch.getVal(i))
+                ++d;
+        }
+
+        return d;
+    }
     void setLength ();
 
     double getMaxFitness () const;
