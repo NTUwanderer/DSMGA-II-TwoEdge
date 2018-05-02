@@ -24,6 +24,12 @@ Chromosome::Chromosome (int n_length) {
     init (n_length);
 }
 
+Chromosome::Chromosome (const Chromosome& c) {
+    gene = NULL;
+    init (c.length);
+    *this = c;
+}
+
 
 Chromosome::~Chromosome () {
     if (gene != NULL) delete []gene;

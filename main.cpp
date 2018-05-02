@@ -19,7 +19,7 @@ using namespace std;
 int
 main (int argc, char *argv[]) {
     if (argc < 9) {
-        printf ("DSMGA2 ell nInitial function maxGen maxFe repeat display rand_seed s_num=1 nk_step=1\n");
+        printf ("DSMGA2 ell function maxGen maxFe repeat display rand_seed s_num=1 nk_step=1\n");
         printf ("function: \n");
         printf ("     ONEMAX:  0\n");
         printf ("     MK    :  1\n");
@@ -35,17 +35,18 @@ main (int argc, char *argv[]) {
         return -1;
     }
 
-    int ell = atoi (argv[1]); // problem size
-    int nInitial = atoi (argv[2]); // initial population size
-    int fffff = atoi (argv[3]); // function
-    int maxGen = atoi (argv[4]); // max generation
-    int maxFe = atoi (argv[5]); // max fe
-    int repeat = atoi (argv[6]); // how many time to repeat
-    int display = atoi (argv[7]); // display each generation or not
-    int rand_seed = atoi (argv[8]);  // rand seed
-	int s_num = argc > 9 ? atoi (argv[9]) : 1;
-	int nk_step = argc > 10 ? atoi (argv[10]) : 1;
+    int ell         = atoi (argv[1]); // problem size
+    int fffff       = atoi (argv[2]); // function
+    int maxGen      = atoi (argv[3]); // max generation
+    int maxFe       = atoi (argv[4]); // max fe
+    int repeat      = atoi (argv[5]); // how many time to repeat
+    int display     = atoi (argv[6]); // display each generation or not
+    int rand_seed   = atoi (argv[7]);  // rand seed
+    int s_num       = argc > 8 ? atoi (argv[8]) : 1;
+    int nk_step     = argc > 9 ? atoi (argv[9]) : 1;
 
+    //int nInitial = (int)(4*(log(ell)/log(2.71828))+1); // initial population size
+    int nInitial = 135; // initial population size
 
     if (fffff == 4) {
 

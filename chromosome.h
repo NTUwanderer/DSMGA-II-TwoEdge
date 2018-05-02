@@ -31,6 +31,7 @@ public:
 
     Chromosome ();
     Chromosome (int n_ell);
+    Chromosome (const Chromosome& c);
 
     ~Chromosome ();
 

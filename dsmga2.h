@@ -9,11 +9,15 @@
 #define _DSMGA2_H_
 
 #include <list>
+#include <vector>
 #include "chromosome.h"
 #include "statistics.h"
 #include "trimatrix.h"
 #include "doublelinkedlistarray.h"
 #include "fastcounting.h"
+#include "bmrecord.h"
+
+using namespace std;
 
 class DSMGA2 {
 public:
@@ -61,13 +65,16 @@ public:
 
     int ell;                                  // chromosome length
     int nCurrent;                             // population size
+    // int nOrig;                                // population size
     bool EQ;
     unordered_map<unsigned long, double> pHash; // to check if a chromosome is in the population
+    unordered_map<unsigned long, double> pHashOrig;
 
+    vector<BMRecord> BMhistory;
 
     list<int> *masks;
     int *selectionIndex;
-    int *orderN;                             // for random order
+    vector<int> orderN;                             // for random order
     int *orderELL;                             // for random order
     int selectionPressure;
     int maxGen;
@@ -76,12 +83,16 @@ public:
     int generation;
     int bestIndex;
 
-    Chromosome* population;
+    vector<Chromosome> population;
+    vector<Chromosome> orig_popu;
     FastCounting* fastCounting;
+    FastCounting* orig_fc;
 
     TriMatrix<double> graph;
    // 2016-11-26
     TriMatrix<double> graph_size;
+    TriMatrix<double> orig_graph;
+    TriMatrix<double> orig_graph_size;
     double previousFitnessMean;
     Statistics stFitness;
 

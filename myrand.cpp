@@ -27,6 +27,8 @@
 #define PI 3.14159265
 #define N 624
 
+using namespace std;
+
 MyRand::MyRand() {
 
     unsigned long init_key[N];
@@ -99,6 +101,24 @@ int MyRand::uniformInt(int a, int b) {
 }
 
 void MyRand::uniformArray(int *array, int num, int a, int b) {
+
+    int *base = new int[b - a + 1];
+    int i;
+    int r;
+
+    for (i = 0; i < b - a + 1; i++)
+        base[i] = a + i;
+
+    for (i = 0; i < num; i++) {
+        r = uniformInt(0, b - a - i);
+        array[i] = base[r];
+        base[r] = base[b - a - i];
+    }
+
+    delete[] base;
+}
+
+void MyRand::uniformArray(vector<int>& array, int num, int a, int b) {
 
     int *base = new int[b - a + 1];
     int i;

@@ -37,39 +37,50 @@ DSMGA2::DSMGA2 (int n_ell, int n_nInitial, int n_maxGen, int n_maxFe, int fffff)
 
     graph.init(ell);
     graph_size.init(ell);
+    orig_graph.init(ell);
+    orig_graph_size.init(ell);
      
     bestIndex = -1;
     masks = new list<int>[ell];
     selectionIndex = new int[nCurrent];
-    orderN = new int[nCurrent];
+    orderN.resize(nCurrent);
     orderELL = new int[ell];
-    population = new Chromosome[nCurrent];
     fastCounting = new FastCounting[ell];
+    population.clear();
 
     for (int i = 0; i < ell; i++)
         fastCounting[i].init(nCurrent);
 
 
     pHash.clear();
+    pHashOrig.clear();
+
     for (int i=0; i<nCurrent; ++i) {
+        Chromosome ch;
+        population.push_back(ch);
         population[i].initR(ell);
-        double f = population[i].getFitness();
-        pHash[population[i].getKey()] = f;
     }
 
     if (GHC) {
         for (int i=0; i < nCurrent; i++)
             population[i].GHC();
     }
+
+    for (int i=0; i<nCurrent; ++i) {
+        Chromosome ch = population[i];
+        orig_popu.push_back(ch);
+        double f = population[i].getFitness();
+        pHash[population[i].getKey()] = f;
+    }
+
 }
 
 
 DSMGA2::~DSMGA2 () {
     delete []masks;
-    delete []orderN;
+    // delete []orig_masks;
     delete []orderELL;
     delete []selectionIndex;
-    delete []population;
     delete []fastCounting;
 }
 
@@ -439,8 +450,8 @@ bool DSMGA2::restrictedMixing(Chromosome& ch, list<int>& mask) {
     for (size_t ub = 1; ub <= mask.size(); ++ub) {
 
         size_t size = 1;
-        Chromosome trial(ell);
-        trial = ch;
+        // Chromosome trial(ell);
+        Chromosome trial = ch;
 	    
 		//2016-03-03
 	    vector<int> takenMask;
