@@ -1,7 +1,7 @@
 
 CXX = g++
-CXXFLAGS = -O0 -g -std=c++11
-#CXXFLAGS = -O2 -Wall -march=native -std=c++11
+#CXXFLAGS = -O0 -g -std=c++11 -DDEBUG
+CXXFLAGS = -O2 -Wall -march=native -std=c++11
 INCLUDE = 
 TLIB = -lm
 
@@ -57,7 +57,7 @@ chromosome.o: spin.h chromosome.h global.h myrand.h mt19937ar.h
 chromosome.o: bitwisedistance.h nk-wa.h doublelinkedlistarray.h zkey.h sat.h mkp.h
 dsmga2.o: chromosome.h global.h myrand.h mt19937ar.h bitwisedistance.h
 dsmga2.o: spin.h nk-wa.h doublelinkedlistarray.h zkey.h sat.h dsmga2.h
-dsmga2.o: statistics.h trimatrix.h fastcounting.h mkp.h
+dsmga2.o: statistics.h trimatrix.h fastcounting.h mkp.h bmrecord.h
 fastcounting.o: global.h myrand.h mt19937ar.h bitwisedistance.h spin.h
 fastcounting.o: nk-wa.h doublelinkedlistarray.h zkey.h sat.h fastcounting.h
 global.o: myrand.h mt19937ar.h statistics.h doublelinkedlistarray.h zkey.h
@@ -65,24 +65,6 @@ global.o: chromosome.h global.h bitwisedistance.h spin.h nk-wa.h sat.h mkp.h
 main.o: statistics.h dsmga2.h chromosome.h global.h myrand.h mt19937ar.h
 main.o: bitwisedistance.h spin.h nk-wa.h doublelinkedlistarray.h zkey.h
 main.o: sat.h trimatrix.h fastcounting.h mkp.h
-myrand.o: myrand.h mt19937ar.h
-spin.o: global.h myrand.h mt19937ar.h bitwisedistance.h spin.h
-spin.o: nk-wa.h doublelinkedlistarray.h zkey.h sat.h mkp.h
-nk-wa.o: nk-wa.h
-sat.o: sat.h
-mkp.o: mkp.h
-chromosome.o: spin.h chromosome.h global.h myrand.h mt19937ar.h
-chromosome.o: bitwisedistance.h nk-wa.h doublelinkedlistarray.h zkey.h sat.h mkp.h
-dsmga2.o: chromosome.h global.h myrand.h mt19937ar.h bitwisedistance.h
-dsmga2.o: spin.h nk-wa.h doublelinkedlistarray.h zkey.h sat.h dsmga2.h
-dsmga2.o: statistics.h trimatrix.h fastcounting.h mkp.h
-fastcounting.o: global.h myrand.h mt19937ar.h bitwisedistance.h spin.h
-fastcounting.o: nk-wa.h doublelinkedlistarray.h zkey.h sat.h fastcounting.h mkp.h
-global.o: myrand.h mt19937ar.h statistics.h doublelinkedlistarray.h zkey.h
-global.o: chromosome.h global.h bitwisedistance.h spin.h nk-wa.h sat.h mkp.h
-sweep.o: statistics.h dsmga2.h chromosome.h global.h myrand.h mt19937ar.h
-sweep.o: bitwisedistance.h spin.h nk-wa.h doublelinkedlistarray.h
-sweep.o: zkey.h sat.h trimatrix.h fastcounting.h mkp.h
 myrand.o: myrand.h mt19937ar.h
 spin.o: global.h myrand.h mt19937ar.h bitwisedistance.h spin.h
 spin.o: nk-wa.h doublelinkedlistarray.h zkey.h sat.h mkp.h
