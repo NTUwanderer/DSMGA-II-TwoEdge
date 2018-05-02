@@ -17,15 +17,18 @@ Chromosome::Chromosome () {
     lengthLong = 0;
     gene = NULL;
     evaluated = false;
+    layer = 0;
 }
 
 Chromosome::Chromosome (int n_length) {
     gene = NULL;
+    layer = 0;
     init (n_length);
 }
 
 Chromosome::Chromosome (const Chromosome& c) {
     gene = NULL;
+    layer = 0;
     init (c.length);
     *this = c;
 }
@@ -61,6 +64,7 @@ void Chromosome::init0 (int _length) {
         gene[i] = 0;
 
     key = 0;
+    layer = 0;
     evaluated = false;
 }
 
@@ -75,6 +79,7 @@ void Chromosome::initR (int _length) {
     gene[lengthLong-1] = 0;
 
     key = 0;
+    layer = 0;
     for (int i=0; i<length; ++i) {
 
         int val = myRand.flip();
@@ -234,6 +239,7 @@ Chromosome& Chromosome::operator= (const Chromosome& c) {
     fitness = c.fitness;
     lengthLong = c.lengthLong;
     key = c.key;
+    layer = c.layer;
 
     memcpy(gene, c.gene, sizeof(long) * lengthLong);
 

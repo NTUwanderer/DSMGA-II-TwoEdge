@@ -24,6 +24,7 @@ DSMGA2::DSMGA2 (int n_ell, int n_nInitial, int n_maxGen, int n_maxFe, int fffff)
     previousFitnessMean = -INF;
     ell = n_ell;
     nCurrent = (n_nInitial/2)*2;  // has to be even
+    nOrig = nCurrent;
 
     Chromosome::function = (Chromosome::Function)fffff;
     Chromosome::nfe = 0;
@@ -42,10 +43,12 @@ DSMGA2::DSMGA2 (int n_ell, int n_nInitial, int n_maxGen, int n_maxFe, int fffff)
      
     bestIndex = -1;
     masks = new list<int>[ell];
-    selectionIndex = new int[nCurrent];
+    selectionIndex.resize(nCurrent);
+    orig_selectionIndex.resize(nCurrent);
     orderN.resize(nCurrent);
     orderELL = new int[ell];
     fastCounting = new FastCounting[ell];
+    orig_fc = new FastCounting[ell];
     population.clear();
 
     for (int i = 0; i < ell; i++)
@@ -71,6 +74,7 @@ DSMGA2::DSMGA2 (int n_ell, int n_nInitial, int n_maxGen, int n_maxFe, int fffff)
         orig_popu.push_back(ch);
         double f = population[i].getFitness();
         pHash[population[i].getKey()] = f;
+        pHashOrig[population[i].getKey()] = f;
     }
 
 }
@@ -80,8 +84,8 @@ DSMGA2::~DSMGA2 () {
     delete []masks;
     // delete []orig_masks;
     delete []orderELL;
-    delete []selectionIndex;
     delete []fastCounting;
+    delete []orig_fc;
 }
 
 
@@ -340,6 +344,9 @@ void DSMGA2::restrictedMixing(Chromosome& ch) {
             else
                 backMixing(ch, mask, population[orderN[i]]);
         }
+
+        // BMhistory.push_back(BMRecord(ch, mask, EQ, (double)sum/(double)nCurrent));
+        BMhistory.push_back(BMRecord(ch, mask, EQ, 0));
     }
 
 }
@@ -536,35 +543,51 @@ size_t DSMGA2::findSize(Chromosome& ch, list<int>& mask, Chromosome& ch2) const 
 
 void DSMGA2::mixing() {
 
-    if (SELECTION)
-        selection();
+    while (true) {
+        if (SELECTION)
+            selection();
 
-    //* really learn model
-    buildFastCounting();
-    buildGraph();
-    buildGraph_sizecheck();
-    //for (int i=0; i<ell; ++i)
-    //    findClique(i, masks[i]); // replaced by findMask in restrictedMixing
+        //* really learn model
+        buildFastCounting();
+        buildGraph();
+        buildGraph_sizecheck();
+        //for (int i=0; i<ell; ++i)
+        //    findClique(i, masks[i]); // replaced by findMask in restrictedMixing
 
-    int repeat = (ell>50)? ell/50: 1;
-
-    for (int k=0; k<repeat; ++k) {
+        // Assume no chromosome added or deleted during RM
+        int *old = new int[nCurrent];
+        for (int i=0; i<nCurrent; ++i)
+            old[i] = population[i].layer;
 
         genOrderN();
         for (int i=0; i<nCurrent; ++i) {
             restrictedMixing(population[orderN[i]]);
             if (Chromosome::hit) break;
         }
-        if (Chromosome::hit) break;
+
+        int count = 0;
+        for (int i=0; i<nCurrent; ++i)
+            if (old[i] < population[i].layer)
+                ++count;
+
+        delete []old;
+        if (Chromosome::hit || 2 * count < nCurrent)
+            break;
     }
 
-
+    increaseOne();
 }
 
 inline bool DSMGA2::isInP(const Chromosome& ch) const {
 
     unordered_map<unsigned long, double>::const_iterator it = pHash.find(ch.getKey());
     return (it != pHash.end());
+}
+
+inline bool DSMGA2::isInOrigP(const Chromosome& ch) const {
+
+    unordered_map<unsigned long, double>::const_iterator it = pHashOrig.find(ch.getKey());
+    return (it != pHashOrig.end());
 }
 
 inline void DSMGA2::genOrderN() {
@@ -759,3 +782,79 @@ void DSMGA2::tournamentSelection () {
         selectionIndex[i] = winner;
     }
 }
+
+void DSMGA2::increaseOne() {
+    double max = -INF;
+    int bestIndex = 0;
+
+    genOrderN();
+    for (int i = 0; i < nCurrent; ++i) {
+        double fitness = population[orderN[i]].getFitness();
+        if (fitness > max) {
+            max = fitness;
+            bestIndex = orderN[i];
+        }
+    }
+
+    double *one = new double[ell];
+    for (int i=0; i<ell; ++i) {
+        one[i] = 0.0;
+        for (int j=0; j<nCurrent; ++j)
+            //if (orig_popu[j].getVal(i)==1)
+            if (population[bestIndex].getVal(i)==1)
+                one[i] += 1.0;
+        //one[i] = nCurrent*0.5;
+    }
+
+    Chromosome ch;
+
+    do {
+        ch.initR(ell);
+        do {
+            for (int i=0; i<ell; ++i)
+                ch.setVal(i, myRand.flip(one[i]/(double)nCurrent *0.33333 + 0.33333)? 0:1);
+        } while (isInOrigP(ch) || isInP(ch));
+        //ch.setVal(i, myRand.flip((one[i]+1.0)/(double)(nCurrent+2.0))? 0:1);
+        ch.GHC();
+    } while (isInOrigP(ch) || isInP(ch));
+
+    delete []one;
+
+    ++nCurrent;
+    ++nOrig;
+
+    population.push_back(ch);
+
+    orig_popu.push_back(population[nCurrent-1]);
+
+    pHash[population[nCurrent-1].getKey()] = population[nCurrent-1].getFitness();
+    pHashOrig[population[nCurrent-1].getKey()] = population[nCurrent-1].getFitness();
+
+    selectionIndex.emplace_back();
+    orig_selectionIndex.emplace_back();
+    orderN.push_back(nCurrent-1);
+
+    for (int i = 0; i < ell; i++) {
+        fastCounting[i].init(nCurrent);
+        orig_fc[i].init(nOrig);
+    }
+
+    int size = BMhistory.size();
+    int *rrr = new int[size];
+    myRand.uniformArray(rrr, size, 0, size-1);
+    for (int i=0; i<size; ++i) {
+        //int r = i;
+        int r = rrr[i];
+        if (BMhistory[r].eq)
+            backMixingE(BMhistory[r].pattern, BMhistory[r].mask, population[nCurrent-1]);
+        else
+            backMixing(BMhistory[r].pattern, BMhistory[r].mask, population[nCurrent-1]);
+    }
+
+    //population[nCurrent-1].GHC();
+
+    delete []rrr;
+
+
+}
+

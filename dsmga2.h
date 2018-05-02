@@ -53,6 +53,7 @@ public:
     }
 
     bool isInP(const Chromosome& ) const;
+    bool isInOrigP(const Chromosome& ) const;
     void genOrderN();
     void genOrderELL();
 
@@ -65,7 +66,7 @@ public:
 
     int ell;                                  // chromosome length
     int nCurrent;                             // population size
-    // int nOrig;                                // population size
+    int nOrig;                                // population size
     bool EQ;
     unordered_map<unsigned long, double> pHash; // to check if a chromosome is in the population
     unordered_map<unsigned long, double> pHashOrig;
@@ -73,7 +74,8 @@ public:
     vector<BMRecord> BMhistory;
 
     list<int> *masks;
-    int *selectionIndex;
+    vector<int> selectionIndex;
+    vector<int> orig_selectionIndex;
     vector<int> orderN;                             // for random order
     int *orderELL;                             // for random order
     int selectionPressure;
@@ -112,6 +114,8 @@ public:
     bool converged();
     double lastMax, lastMean, lastMin;
     int convergeCount;
+
+    void increaseOne();
 
 };
 

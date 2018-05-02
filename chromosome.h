@@ -136,6 +136,7 @@ public:
     static int hitnfe;
     static bool hit;
     static unordered_map<unsigned long, double> cache;
+    int layer;
 
 protected:
 
@@ -147,6 +148,5 @@ protected:
     unsigned long key;
 
 };
-
 
 #endif

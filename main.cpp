@@ -45,8 +45,8 @@ main (int argc, char *argv[]) {
     int s_num       = argc > 8 ? atoi (argv[8]) : 1;
     int nk_step     = argc > 9 ? atoi (argv[9]) : 1;
 
-    //int nInitial = (int)(4*(log(ell)/log(2.71828))+1); // initial population size
-    int nInitial = 135; // initial population size
+    int nInitial = (int)(4*(log(ell)/log(2.71828))+1); // initial population size
+    //int nInitial = 135; // initial population size
 
     if (fffff == 4) {
 
