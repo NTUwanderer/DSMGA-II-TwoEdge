@@ -415,6 +415,7 @@ void DSMGA2::backMixing(Chromosome& source, list<int>& mask, Chromosome& des) {
         pHash.erase(des.getKey());
         pHash[trial.getKey()] = trial.getFitness();
         des = trial;
+        ++(des.layer);
           
         return;
     }
@@ -434,8 +435,9 @@ void DSMGA2::backMixingE(Chromosome& source, list<int>& mask, Chromosome& des) {
 
         EQ = false;
         des = trial;
+        ++(des.layer);
 
-return;
+        return;
     }
 
     //2016-10-21
@@ -444,6 +446,8 @@ return;
         pHash[trial.getKey()] = trial.getFitness();
 
         des = trial;
+        // ++(des.layer);
+
         return;
     }
 
@@ -484,6 +488,7 @@ bool DSMGA2::restrictedMixing(Chromosome& ch, list<int>& mask) {
 
             taken = true;
             ch = trial;
+            ++(ch.layer);
         }
 
         if (taken) {
