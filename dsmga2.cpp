@@ -564,8 +564,8 @@ void DSMGA2::mixing() {
         usedIndex[i] = false;
 
     for (int i=0; i<ell; ++i) {
-        // if (usedIndex[orderELL[i]])
-        //     continue;
+        if (usedIndex[orderELL[i]])
+            continue;
         restrictedMixing(population[nCurrent - 1], orderELL[i]);
     }
 
