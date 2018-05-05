@@ -50,6 +50,7 @@ DSMGA2::DSMGA2 (int n_ell, int n_nInitial, int n_maxGen, int n_maxFe, int fffff)
     fastCounting = new FastCounting[ell];
     orig_fc = new FastCounting[ell];
     population.clear();
+    usedIndex = new bool[ell];
 
     for (int i = 0; i < ell; i++)
         fastCounting[i].init(nCurrent);
@@ -86,6 +87,7 @@ DSMGA2::~DSMGA2 () {
     delete []orderELL;
     delete []fastCounting;
     delete []orig_fc;
+    delete []usedIndex;
 }
 
 
@@ -310,10 +312,10 @@ void DSMGA2::findMask(Chromosome& ch, list<int>& result,int startNode){
   
 }
 
-void DSMGA2::restrictedMixing(Chromosome& ch) {
+void DSMGA2::restrictedMixing(Chromosome& ch, int startNode) {
     
-    int startNode = myRand.uniformInt(0, ell - 1);    
-    
+    if (startNode == -1)
+        startNode = myRand.uniformInt(0, ell - 1);
 
 
     list<int> mask;
@@ -334,6 +336,8 @@ void DSMGA2::restrictedMixing(Chromosome& ch) {
 
     EQ = true;
     if (taken) {
+        for (auto i: mask)
+            usedIndex[i] = true;
     
         genOrderN();
 
@@ -548,16 +552,30 @@ size_t DSMGA2::findSize(Chromosome& ch, list<int>& mask, Chromosome& ch2) const 
 
 void DSMGA2::mixing() {
 
+    if (SELECTION)
+        selection();
+
+    buildFastCounting();
+    buildGraph();
+    buildGraph_sizecheck();
+
+    genOrderELL();
+    for (int i=0; i<ell; ++i)
+        usedIndex[i] = false;
+
+    for (int i=0; i<ell; ++i) {
+        // if (usedIndex[orderELL[i]])
+        //     continue;
+        restrictedMixing(population[nCurrent - 1], orderELL[i]);
+    }
+
     while (true) {
         if (SELECTION)
             selection();
 
-        //* really learn model
         buildFastCounting();
         buildGraph();
         buildGraph_sizecheck();
-        //for (int i=0; i<ell; ++i)
-        //    findClique(i, masks[i]); // replaced by findMask in restrictedMixing
 
         // Assume no chromosome added or deleted during RM
         int *old = new int[nCurrent];
@@ -567,7 +585,6 @@ void DSMGA2::mixing() {
         genOrderN();
         for (int i=0; i<nCurrent; ++i) {
             restrictedMixing(population[orderN[i]]);
-            if (Chromosome::hit) break;
         }
 
         int count = 0;

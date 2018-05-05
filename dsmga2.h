@@ -39,7 +39,7 @@ public:
     void findMask_size(Chromosome& ch, list<int>& mask,int startNode,int bound);
     void buildGraph_sizecheck();
     // ****
-    void restrictedMixing(Chromosome&);
+    void restrictedMixing(Chromosome&, int startNode = -1);
     bool restrictedMixing(Chromosome& ch, list<int>& mask);
     void backMixing(Chromosome& source, list<int>& mask, Chromosome& des);
     void backMixingE(Chromosome& source, list<int>& mask, Chromosome& des);
@@ -89,6 +89,8 @@ public:
     vector<Chromosome> orig_popu;
     FastCounting* fastCounting;
     FastCounting* orig_fc;
+
+    bool *usedIndex;
 
     TriMatrix<double> graph;
    // 2016-11-26
