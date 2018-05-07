@@ -834,7 +834,7 @@ void DSMGA2::increaseOne() {
         ch.initR(ell);
         do {
             for (int i=0; i<ell; ++i)
-                ch.setVal(i, myRand.flip(one[i]/(double)nCurrent *0.33333 + 0.33333)? 0:1);
+                ch.setVal(i, myRand.flip()? 0:1);
         } while (isInOrigP(ch) || isInP(ch));
         //ch.setVal(i, myRand.flip((one[i]+1.0)/(double)(nCurrent+2.0))? 0:1);
         ch.GHC();
