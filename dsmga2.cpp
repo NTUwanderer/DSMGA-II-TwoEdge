@@ -569,6 +569,7 @@ void DSMGA2::mixing() {
         restrictedMixing(population[nCurrent - 1], orderELL[i]);
     }
 
+    /*
     while (true) {
         if (SELECTION)
             selection();
@@ -596,6 +597,7 @@ void DSMGA2::mixing() {
         if (Chromosome::hit || 2 * count < nCurrent)
             break;
     }
+    */
 
     increaseOne();
 }
