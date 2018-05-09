@@ -39,8 +39,10 @@ public:
     void findMask_size(Chromosome& ch, list<int>& mask,int startNode,int bound);
     void buildGraph_sizecheck();
     // ****
+    void rankIlsRM(Chromosome&);
     void restrictedMixing(Chromosome&, int startNode = -1);
     bool restrictedMixing(Chromosome& ch, list<int>& mask);
+    bool restrictedMixing(Chromosome& ch, const list<int>& mask, int size);
     void backMixing(Chromosome& source, list<int>& mask, Chromosome& des);
     void backMixingE(Chromosome& source, list<int>& mask, Chromosome& des);
 
@@ -74,6 +76,7 @@ public:
     vector<BMRecord> BMhistory;
 
     list<int> *masks;
+    vector<double> *linkValues;
     vector<int> selectionIndex;
     vector<int> orig_selectionIndex;
     vector<int> orderN;                             // for random order

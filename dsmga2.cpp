@@ -9,6 +9,7 @@
 #include <iterator>
 
 #include <iostream>
+#include <queue>
 #include "chromosome.h"
 #include "dsmga2.h"
 #include "fastcounting.h"
@@ -16,6 +17,46 @@
 
 #include <iomanip>
 using namespace std;
+
+class Pos {
+public:
+    Pos(int x, int y, double value) {
+        _x = x;
+        _y = y;
+        _value = value;
+    }
+
+    bool operator < (const Pos& p) const {
+        return _value < p._value;
+        //return Pos::_linkValues[_x][_y] < _linkValues[p._x][p._y];
+    }
+
+    bool operator > (const Pos& p) const {
+        return _value > p._value;
+        //return _linkValues[_x][_y] > _linkValues[p._x][p._y];
+    }
+
+    bool operator == (const Pos& p) const {
+        return _value == p._value;
+        //return _linkValues[_x][_y] == _linkValues[p._x][p._y];
+    }
+
+    int _x;
+    int _y;
+    double _value;
+};
+
+class myComp {
+public:
+    myComp(vector<double> *linkValues) {
+        _linkValues = linkValues;
+    }
+    bool operator() (const Pos& pos1, const Pos& pos2) {
+        return _linkValues[pos1._x][pos1._y] < _linkValues[pos2._x][pos2._y];
+    }
+
+    vector<double> *_linkValues;
+};
 
 
 DSMGA2::DSMGA2 (int n_ell, int n_nInitial, int n_maxGen, int n_maxFe, int fffff) {
@@ -43,6 +84,7 @@ DSMGA2::DSMGA2 (int n_ell, int n_nInitial, int n_maxGen, int n_maxFe, int fffff)
      
     bestIndex = -1;
     masks = new list<int>[ell];
+    linkValues = new vector<double>[ell];
     selectionIndex.resize(nCurrent);
     orig_selectionIndex.resize(nCurrent);
     orderN.resize(nCurrent);
@@ -83,6 +125,7 @@ DSMGA2::DSMGA2 (int n_ell, int n_nInitial, int n_maxGen, int n_maxFe, int fffff)
 
 DSMGA2::~DSMGA2 () {
     delete []masks;
+    delete []linkValues;
     // delete []orig_masks;
     delete []orderELL;
     delete []fastCounting;
@@ -260,6 +303,8 @@ int DSMGA2::countXOR(int x, int y) const {
 // except check 00 or 01 before adding connection
 void DSMGA2::findMask(Chromosome& ch, list<int>& result,int startNode){
     result.clear();
+    linkValues[startNode].clear();
+    linkValues[startNode].push_back(1);
 
     
 	DLLA rest(ell);
@@ -283,7 +328,11 @@ void DSMGA2::findMask(Chromosome& ch, list<int>& result,int startNode){
 			connection[*iter] = p.second;
 	}
    
+    double sum = 0;
+    int numAdd = 0, counter = 0;
     while(!rest.isEmpty()){
+        counter += 1;
+        numAdd += counter;
 
 	    double max = -INF;
 		int index = -1;
@@ -293,6 +342,9 @@ void DSMGA2::findMask(Chromosome& ch, list<int>& result,int startNode){
 				index = *iter;
 			}
 		}
+
+        sum += max;
+        linkValues[startNode].push_back(sum / numAdd);
 
 		rest.erase(index);
 		result.push_back(index);
@@ -309,7 +361,7 @@ void DSMGA2::findMask(Chromosome& ch, list<int>& result,int startNode){
 	}
 
 	delete []connection;
-  
+
 }
 
 void DSMGA2::restrictedMixing(Chromosome& ch, int startNode) {
@@ -354,6 +406,160 @@ void DSMGA2::restrictedMixing(Chromosome& ch, int startNode) {
     }
 
 }
+
+void DSMGA2::rankIlsRM(Chromosome& ch) {
+    
+    bool* used = new bool[ell];
+    int* usedSize = new int[ell];
+    int* maxSizes = new int[ell];
+
+
+    for (int i=0; i<ell; ++i) {
+
+        list<int> mask;
+	    findMask(ch, mask, i);
+        size_t size = findSize(ch, mask);
+   
+        list<int> mask_size; 
+        findMask_size(ch, mask_size, i, size);
+        size_t size_original = findSize(ch,mask_size);
+
+        if (size > size_original)
+            size = size_original;
+        while (mask.size() > size)
+            mask.pop_back();
+
+        maxSizes[i] = size;
+        used[i] = false;
+        usedSize[i] = 0;
+    }
+
+    priority_queue<Pos> myQueue;
+
+    /*
+    for (int i=0; i<ell; ++i)
+        for (int j=0; j<maxSizes[i]-1; ++j)
+            myQueue.push(Pos(i, j, linkValues[i][j]));
+    */
+    for (int i=0; i<ell; ++i)
+        if (maxSizes[i] > 1)
+            myQueue.push(Pos(i, 2, linkValues[i][2 - 1]));
+
+    int countSuccess = 0;
+    while (!myQueue.empty()) {
+        Pos pos = myQueue.top();
+        myQueue.pop();
+
+        // if (used[pos._x])
+        //     continue;
+        // if (usedSize[pos._x] < pos._y)
+        //     continue;
+
+        list<int> mask = masks[pos._x];
+        bool taken = restrictedMixing(ch, mask, pos._y);
+
+        if (!taken && pos._y + 1 < maxSizes[pos._x])
+            myQueue.push(Pos(pos._x, pos._y + 1, linkValues[pos._x][pos._y]));
+
+        if (taken) {
+            EQ = true;
+            ++countSuccess;
+            used[pos._x] = true;
+            usedSize[pos._x] = pos._y;
+            Chromosome temp_ch = ch;
+
+            genOrderN();
+
+            for (int i=0; i<nCurrent; ++i) {
+
+                if (EQ)
+                    backMixingE(ch, mask, population[orderN[i]]);
+                else
+                    backMixing(ch, mask, population[orderN[i]]);
+            }
+
+            BMhistory.push_back(BMRecord(ch, mask, EQ, 0));
+
+
+            /*
+            myQueue = priority_queue<Pos>();
+
+            for (int i = 0; i < ell; i++) {
+                fastCounting[i].init(nCurrent);
+                orig_fc[i].init(nOrig);
+            }
+	        selectionIndex.resize(nCurrent);
+	        orig_selectionIndex.resize(nOrig);
+            if (SELECTION) {
+                selection();
+                OrigSelection();
+            }
+            // really learn model
+            for (int i = 0; i < ell; i++)
+                orig_fc[i].init(nOrig);
+            buildFastCounting();
+            buildOrigFastCounting();
+            buildGraph();
+            for (int i=0; i<ell; ++i)
+                findClique(i, masks[i], linkValues[i]);
+
+            for (int i=0; i<ell; ++i) {
+                list<int> mask = masks[i];
+                size_t size = 0;
+
+                if (used[i]) {
+                    maxSizes[i] = size;
+                    continue;
+                }
+
+                if (NEW)
+                    size = findSize(ch, mask, population[nCurrent-1]);
+                else
+                    size = findSize(ch, mask);
+
+                if (size > (size_t)ell/2)
+                    size = ell/2;
+
+                maxSizes[i] = size;
+            }
+
+            for (int i=0; i<ell; ++i)
+                for (int j=0; j<maxSizes[i]-1; ++j)
+                    myQueue.push(Pos(i, j, linkValues[i][j]));
+            */
+
+        }
+    }
+
+    delete[] used;
+    delete[] maxSizes;
+    delete[] usedSize;
+    /* old
+    bool taken = restrictedMixing(ch, mask);
+
+
+    EQ = true;
+    if (taken) {
+        for (auto i: mask)
+            usedIndex[i] = true;
+    
+        genOrderN();
+
+        for (int i=0; i<nCurrent; ++i) {
+
+            if (EQ)
+                backMixingE(ch, mask, population[orderN[i]]);
+            else
+                backMixing(ch, mask, population[orderN[i]]);
+        }
+
+        // BMhistory.push_back(BMRecord(ch, mask, EQ, (double)sum/(double)nCurrent));
+        BMhistory.push_back(BMRecord(ch, mask, EQ, 0));
+    }
+    */
+
+}
+
 void DSMGA2::findMask_size(Chromosome& ch, list<int>& result,int startNode,int bound){
     result.clear();
 
@@ -512,6 +718,38 @@ bool DSMGA2::restrictedMixing(Chromosome& ch, list<int>& mask) {
 
 }
 
+bool DSMGA2::restrictedMixing(Chromosome& ch, const list<int>& mask, int size) {
+
+    bool taken = false;
+
+    int _size = 0;
+    Chromosome trial = ch;
+	
+    for (list<int>::const_iterator it = mask.begin(); it != mask.end() && _size < size; ++it) {
+        
+        trial.flip(*it);
+
+        ++_size;
+    }
+
+    if (isInP(trial))
+        return false;
+
+    bool flag = (trial.getFitness() > ch.getFitness());
+    if (trial.getFitness() >= ch.getFitness() - EPSILON) {
+        pHash.erase(ch.getKey());
+        pHash[trial.getKey()] = trial.getFitness();
+
+        taken = true;
+        ch = trial;
+        if (flag)
+            ++(ch.layer);
+    }
+
+    return taken;
+
+}
+
 size_t DSMGA2::findSize(Chromosome& ch, list<int>& mask) const {
 
     DLLA candidate(nCurrent);
@@ -561,15 +799,7 @@ void DSMGA2::mixing() {
     buildGraph();
     buildGraph_sizecheck();
 
-    genOrderELL();
-    for (int i=0; i<ell; ++i)
-        usedIndex[i] = false;
-
-    for (int i=0; i<ell; ++i) {
-        if (usedIndex[orderELL[i]])
-            continue;
-        restrictedMixing(population[nCurrent - 1], orderELL[i]);
-    }
+    rankIlsRM(population[nCurrent - 1]);
 
     while (true) {
         if (SELECTION)
