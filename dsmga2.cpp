@@ -486,13 +486,15 @@ bool DSMGA2::restrictedMixing(Chromosome& ch, list<int>& mask) {
         //2016-10-21
         if (isInP(trial)) break;
 
+        bool flag = (trial.getFitness() > ch.getFitness());
         if (trial.getFitness() >= ch.getFitness() - EPSILON) {
             pHash.erase(ch.getKey());
             pHash[trial.getKey()] = trial.getFitness();
 
             taken = true;
             ch = trial;
-            ++(ch.layer);
+            if (flag)
+                ++(ch.layer);
         }
 
         if (taken) {
