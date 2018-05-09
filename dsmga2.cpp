@@ -595,7 +595,7 @@ void DSMGA2::mixing() {
                 ++count;
 
         delete []old;
-        if (Chromosome::hit || 1.5 * count < nCurrent)
+        if (Chromosome::hit || 2 * count < nCurrent)
             break;
     }
 
