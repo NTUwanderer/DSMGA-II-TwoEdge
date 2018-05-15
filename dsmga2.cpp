@@ -436,30 +436,30 @@ void DSMGA2::rankIlsRM(Chromosome& ch) {
 
     priority_queue<Pos> myQueue;
 
-    /*
     for (int i=0; i<ell; ++i)
-        for (int j=0; j<maxSizes[i]-1; ++j)
-            myQueue.push(Pos(i, j, linkValues[i][j]));
-    */
+        for (int j=2; j<=maxSizes[i]; ++j)
+            myQueue.push(Pos(i, j, linkValues[i][j - 1]));
+    /*
     for (int i=0; i<ell; ++i)
         if (maxSizes[i] > 1)
             myQueue.push(Pos(i, 2, linkValues[i][2 - 1]));
+    */
 
     int countSuccess = 0;
     while (!myQueue.empty()) {
         Pos pos = myQueue.top();
         myQueue.pop();
 
-        // if (used[pos._x])
-        //     continue;
+        if (used[pos._x])
+            continue;
         // if (usedSize[pos._x] < pos._y)
         //     continue;
 
         list<int> mask = masks[pos._x];
         bool taken = restrictedMixing(ch, mask, pos._y);
 
-        if (!taken && pos._y + 1 < maxSizes[pos._x])
-            myQueue.push(Pos(pos._x, pos._y + 1, linkValues[pos._x][pos._y]));
+        // if (!taken && pos._y + 1 < maxSizes[pos._x])
+        //     myQueue.push(Pos(pos._x, pos._y + 1, linkValues[pos._x][pos._y]));
 
         if (taken) {
             EQ = true;
