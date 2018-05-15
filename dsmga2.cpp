@@ -595,7 +595,7 @@ void DSMGA2::mixing() {
                 ++count;
 
         delete []old;
-        if (Chromosome::hit || 2 * count < nCurrent)
+        if (Chromosome::hit || 1.5 * count < nCurrent)
             break;
     }
 
@@ -863,6 +863,7 @@ void DSMGA2::increaseOne() {
         orig_fc[i].init(nOrig);
     }
 
+    /*
     int size = BMhistory.size();
     int *rrr = new int[size];
     myRand.uniformArray(rrr, size, 0, size-1);
@@ -878,6 +879,7 @@ void DSMGA2::increaseOne() {
     //population[nCurrent-1].GHC();
 
     delete []rrr;
+    */
 
 
 }
