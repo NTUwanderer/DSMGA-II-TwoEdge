@@ -309,12 +309,12 @@ void DSMGA2::restrictedMixing(Chromosome& ch) {
     findMask_size(ch,mask_size,startNode,size);
     size_t size_original = findSize(ch,mask_size);
 
-    if (size > size_original)
-        size = size_original;
+    if (size > 1.5 * size_original)
+        size = 1.5 * size_original;
     while (mask.size() > size)
         mask.pop_back();
    
-    bool taken = restrictedMixing(ch, mask);
+    bool taken = restrictedMixing(ch, mask, size_original);
 
 
     EQ = true;
@@ -431,7 +431,7 @@ return;
 
 }
 
-bool DSMGA2::restrictedMixing(Chromosome& ch, list<int>& mask) {
+bool DSMGA2::restrictedMixing(Chromosome& ch, list<int>& mask, size_t size_original) {
 
     bool taken = false;
     size_t lastUB = 0;
@@ -443,12 +443,12 @@ bool DSMGA2::restrictedMixing(Chromosome& ch, list<int>& mask) {
         trial = ch;
 	    
 		//2016-03-03
-	    vector<int> takenMask;
+	    // vector<int> takenMask;
 
         for (list<int>::iterator it = mask.begin(); it != mask.end(); ++it) {
             
             //2016-03-03
-			takenMask.push_back(*it);
+			// takenMask.push_back(*it);
 
             trial.flip(*it);
 
@@ -460,7 +460,7 @@ bool DSMGA2::restrictedMixing(Chromosome& ch, list<int>& mask) {
         //2016-10-21
         if (isInP(trial)) break;
 
-        if (trial.getFitness() >= ch.getFitness() - EPSILON) {
+        if (trial.getFitness() > ch.getFitness() || (ub < size_original && trial.getFitness() >= ch.getFitness() - EPSILON)) {
             pHash.erase(ch.getKey());
             pHash[trial.getKey()] = trial.getFitness();
 
