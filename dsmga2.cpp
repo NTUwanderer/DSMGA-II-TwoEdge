@@ -314,15 +314,19 @@ void DSMGA2::restrictedMixing(Chromosome& ch) {
     while (mask.size() > size)
         mask.pop_back();
    
+    EQ = true;
     bool taken = restrictedMixing(ch, mask);
 
-
-    EQ = true;
     if (taken) {
     
         genOrderN();
+        eqCount = 0;
 
         for (int i=0; i<nCurrent; ++i) {
+            if (eqCount > 0)
+                EQ = true;
+            else if (eqCount < 0)
+                EQ = false;
 
             if (EQ)
                 backMixingE(ch, mask, population[orderN[i]]);
@@ -393,6 +397,13 @@ void DSMGA2::backMixing(Chromosome& source, list<int>& mask, Chromosome& des) {
     for (list<int>::iterator it = mask.begin(); it != mask.end(); ++it)
         trial.setVal(*it, source.getVal(*it));
 
+    if (trial.getFitness() >= des.getFitness() - EPSILON) {
+        if (trial.getFitness() > des.getFitness())
+            --eqCount;
+        else
+            ++eqCount;
+    }
+
     if (trial.getFitness() > des.getFitness()) {
         pHash.erase(des.getKey());
         pHash[trial.getKey()] = trial.getFitness();
@@ -407,6 +418,13 @@ void DSMGA2::backMixingE(Chromosome& source, list<int>& mask, Chromosome& des) {
 
     Chromosome trial(ell);
     trial = des;
+    if (trial.getFitness() >= des.getFitness() - EPSILON) {
+        if (trial.getFitness() > des.getFitness())
+            --eqCount;
+        else
+            ++eqCount;
+    }
+
     for (list<int>::iterator it = mask.begin(); it != mask.end(); ++it)
         trial.setVal(*it, source.getVal(*it));
 
@@ -417,7 +435,7 @@ void DSMGA2::backMixingE(Chromosome& source, list<int>& mask, Chromosome& des) {
         EQ = false;
         des = trial;
 
-return;
+        return;
     }
 
     //2016-10-21
@@ -466,6 +484,10 @@ bool DSMGA2::restrictedMixing(Chromosome& ch, list<int>& mask) {
 
             taken = true;
             ch = trial;
+            if (trial.getFitness() > ch.getFitness())
+                EQ = false;
+            else
+                EQ = true;
         }
 
         if (taken) {

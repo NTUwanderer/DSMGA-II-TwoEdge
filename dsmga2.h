@@ -62,6 +62,7 @@ public:
     int ell;                                  // chromosome length
     int nCurrent;                             // population size
     bool EQ;
+    int eqCount;
     unordered_map<unsigned long, double> pHash; // to check if a chromosome is in the population
 
 
