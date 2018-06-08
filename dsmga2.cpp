@@ -320,13 +320,15 @@ void DSMGA2::restrictedMixing(Chromosome& ch) {
     if (taken) {
     
         genOrderN();
-        eqCount = 0;
+        // eqCount = 0;
+        equalCount = 0;
+        improveCount = 0;
 
         for (int i=0; i<nCurrent; ++i) {
-            if (eqCount > 0)
-                EQ = true;
-            else if (eqCount < 0)
+            if (improveCount > nCurrent / 10)
                 EQ = false;
+            else if (equalCount - improveCount > nCurrent / 10)
+                EQ = true;
 
             if (EQ)
                 backMixingE(ch, mask, population[orderN[i]]);
@@ -399,9 +401,11 @@ void DSMGA2::backMixing(Chromosome& source, list<int>& mask, Chromosome& des) {
 
     if (trial.getFitness() >= des.getFitness() - EPSILON) {
         if (trial.getFitness() > des.getFitness())
-            --eqCount;
+            ++improveCount;
+            // --eqCount;
         else
-            ++eqCount;
+            ++equalCount;
+            // ++eqCount;
     }
 
     if (trial.getFitness() > des.getFitness()) {
@@ -420,9 +424,11 @@ void DSMGA2::backMixingE(Chromosome& source, list<int>& mask, Chromosome& des) {
     trial = des;
     if (trial.getFitness() >= des.getFitness() - EPSILON) {
         if (trial.getFitness() > des.getFitness())
-            --eqCount;
+            ++improveCount;
+            // --eqCount;
         else
-            ++eqCount;
+            ++equalCount;
+            // ++eqCount;
     }
 
     for (list<int>::iterator it = mask.begin(); it != mask.end(); ++it)
