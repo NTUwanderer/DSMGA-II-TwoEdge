@@ -65,6 +65,7 @@ public:
     int eqCount;
     int improveCount;
     int equalCount;
+    int countThres;
     unordered_map<unsigned long, double> pHash; // to check if a chromosome is in the population
 
 

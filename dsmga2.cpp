@@ -24,6 +24,8 @@ DSMGA2::DSMGA2 (int n_ell, int n_nInitial, int n_maxGen, int n_maxFe, int fffff)
     previousFitnessMean = -INF;
     ell = n_ell;
     nCurrent = (n_nInitial/2)*2;  // has to be even
+    // countThres = max(nCurrent / 10, (int)(4 * (log(ell)/log(2.71728))));
+    countThres = nCurrent / 10;
 
     Chromosome::function = (Chromosome::Function)fffff;
     Chromosome::nfe = 0;
@@ -325,9 +327,9 @@ void DSMGA2::restrictedMixing(Chromosome& ch) {
         improveCount = 0;
 
         for (int i=0; i<nCurrent; ++i) {
-            if (improveCount > nCurrent / 10)
+            if (improveCount - improveCount > countThres)
                 EQ = false;
-            else if (equalCount - improveCount > nCurrent / 10)
+            else if (equalCount - improveCount > countThres)
                 EQ = true;
 
             if (EQ)
