@@ -25,7 +25,7 @@ DSMGA2::DSMGA2 (int n_ell, int n_nInitial, int n_maxGen, int n_maxFe, int fffff)
     ell = n_ell;
     nCurrent = (n_nInitial/2)*2;  // has to be even
     // countThres = max(nCurrent / 10, (int)(4 * (log(ell)/log(2.71728))));
-    countThres = nCurrent / 10;
+    countThres = (int)(4 * (log(ell)/log(2.71728)));
 
     Chromosome::function = (Chromosome::Function)fffff;
     Chromosome::nfe = 0;
