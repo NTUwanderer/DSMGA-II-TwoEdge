@@ -55,6 +55,7 @@ public:
     void showStatistics ();
 
     bool isSteadyState ();
+    double bestF();
 
 //protected:
 public:

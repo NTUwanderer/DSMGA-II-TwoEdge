@@ -440,7 +440,7 @@ void DSMGA2::backMixingE(Chromosome& source, list<int>& mask, Chromosome& des) {
         pHash.erase(des.getKey());
         pHash[trial.getKey()] = trial.getFitness();
 
-        EQ = false;
+        // EQ = false;
         des = trial;
 
         return;
@@ -777,4 +777,8 @@ void DSMGA2::tournamentSelection () {
         }
         selectionIndex[i] = winner;
     }
+}
+
+double DSMGA2::bestF () {
+    return population[bestIndex].getFitness();
 }

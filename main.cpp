@@ -91,6 +91,7 @@ main (int argc, char *argv[]) {
     int usedGen;
 
     int failNum = 0;
+    double* bestFs = new double[repeat];
 
     for (i = 0; i < repeat; i++) {
 
@@ -101,6 +102,7 @@ main (int argc, char *argv[]) {
         else
             usedGen = ga.doIt (false);
 
+        bestFs[i] = ga.bestF();
 
         if (!ga.foundOptima()) {
             failNum++;
@@ -122,6 +124,13 @@ main (int argc, char *argv[]) {
     printf ("FailNum: %d\n", failNum);
     printf ("LSNFE: %f\n", stLSFE.getMean());
     printf ("NFE: %f\n", stFE.getMean());
+    printf ("N_std: %f\n", stFE.getStdev());
+    printf ("Fs:");
+    for (int i = 0; i < repeat; ++i)
+        printf (" %f", bestFs[i]);
+    printf ("\n");
+
+    delete[] bestFs;
 
     if (fffff == 4) freeNKWAProblem(&nkwa);
     if (fffff == 9) freeMKPinstance(&myMKP);
