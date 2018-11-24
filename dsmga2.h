@@ -71,6 +71,7 @@ public:
     int *orderN;                             // for random order
     int *orderN2;                             // for random order
     int *orderELL;                             // for random order
+    double *ellValue;
     int selectionPressure;
     int maxGen;
     int maxFe;
@@ -109,6 +110,7 @@ public:
     double lastMax, lastMean, lastMin;
     int convergeCount;
 
+    void buildEllValue(const Chromosome&);
 };
 
 

@@ -44,6 +44,7 @@ DSMGA2::DSMGA2 (int n_ell, int n_nInitial, int n_maxGen, int n_maxFe, int fffff)
     orderN = new int[nCurrent];
     orderN2 = new int[nCurrent];
     orderELL = new int[ell];
+    ellValue = new double[ell];
     population = new Chromosome[nCurrent];
     fastCounting = new FastCounting[ell];
 
@@ -55,6 +56,8 @@ DSMGA2::DSMGA2 (int n_ell, int n_nInitial, int n_maxGen, int n_maxFe, int fffff)
     for (int i = 0; i < ell; i++)
         fastCounting[i].init(nCurrent);
 
+    for (int i = 0; i < ell; i++)
+        ellValue[i] = 0.0;
 
     pHash.clear();
     for (int i=0; i<nCurrent; ++i) {
@@ -75,6 +78,7 @@ DSMGA2::~DSMGA2 () {
     delete []orderN;
     delete []orderN2;
     delete []orderELL;
+    delete []ellValue;
     delete []selectionIndex;
     delete []population;
     delete []fastCounting;
@@ -304,7 +308,11 @@ void DSMGA2::findMask(Chromosome& ch, list<int>& result,int startNode){
 
 void DSMGA2::restrictedMixing(Chromosome& ch) {
     
+    buildEllValue(ch);
     int startNode = myRand.uniformInt(0, ell - 1);    
+    int challenge = myRand.uniformInt(0, ell - 1);
+    if (ellValue[challenge] > ellValue[startNode])
+        startNode = challenge;
     
 
 
@@ -771,4 +779,22 @@ void DSMGA2::tournamentSelection () {
 }
 double DSMGA2::bestF () {
     return population[bestIndex].getFitness();
+}
+
+void DSMGA2::buildEllValue(const Chromosome& ch) {
+    for (int i = 0; i < ell; ++i)
+        ellValue[i] = 0.0;
+
+    for (int i = 0; i < ell - 1; ++i) {
+        for (int j = i+1; j < ell; ++j) {
+            pair<double, double> p = graph(i, j);
+            if (ch.getVal(i) == ch.getVal(j)) { //p00 or p11
+	    		ellValue[i] += p.first;
+	    		ellValue[j] += p.first;
+            } else {
+	    		ellValue[i] += p.second;
+	    		ellValue[j] += p.second;
+            }
+	    }
+    }
 }
