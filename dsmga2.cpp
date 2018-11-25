@@ -311,7 +311,7 @@ void DSMGA2::restrictedMixing(Chromosome& ch) {
     buildEllValue(ch);
     int startNode = myRand.uniformInt(0, ell - 1);    
     int challenge = myRand.uniformInt(0, ell - 1);
-    if (ellValue[challenge] > ellValue[startNode])
+    if (ellValue[challenge] < ellValue[startNode])
         startNode = challenge;
     
 
