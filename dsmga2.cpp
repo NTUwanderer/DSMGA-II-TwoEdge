@@ -46,6 +46,11 @@ DSMGA2::DSMGA2 (int n_ell, int n_nInitial, int n_maxGen, int n_maxFe, int fffff)
     population = new Chromosome[nCurrent];
     fastCounting = new FastCounting[ell];
 
+    rmSuccess = 0;
+    rmFail = 0;
+    bmSuccess = 0;
+    bmFail = 0;
+
     for (int i = 0; i < ell; i++)
         fastCounting[i].init(nCurrent);
 
@@ -315,7 +320,10 @@ void DSMGA2::restrictedMixing(Chromosome& ch) {
         mask.pop_back();
    
     bool taken = restrictedMixing(ch, mask);
-
+    if (taken)
+        ++rmSuccess;
+    else
+        ++rmFail;
 
     EQ = true;
     if (taken) {
@@ -323,11 +331,17 @@ void DSMGA2::restrictedMixing(Chromosome& ch) {
         genOrderN();
 
         for (int i=0; i<nCurrent; ++i) {
+            bool bmS = false;
 
             if (EQ)
-                backMixingE(ch, mask, population[orderN[i]]);
+                bmS = backMixingE(ch, mask, population[orderN[i]]);
             else
-                backMixing(ch, mask, population[orderN[i]]);
+                bmS = backMixing(ch, mask, population[orderN[i]]);
+
+            if (bmS)
+                ++bmSuccess;
+            else
+                ++bmFail;
         }
     }
 
@@ -386,7 +400,7 @@ void DSMGA2::findMask_size(Chromosome& ch, list<int>& result,int startNode,int b
   
 }
 
-void DSMGA2::backMixing(Chromosome& source, list<int>& mask, Chromosome& des) {
+bool DSMGA2::backMixing(Chromosome& source, list<int>& mask, Chromosome& des) {
 
     Chromosome trial(ell);
     trial = des;
@@ -398,12 +412,13 @@ void DSMGA2::backMixing(Chromosome& source, list<int>& mask, Chromosome& des) {
         pHash[trial.getKey()] = trial.getFitness();
         des = trial;
           
-        return;
+        return true;
     }
 
+    return false;
 }
 
-void DSMGA2::backMixingE(Chromosome& source, list<int>& mask, Chromosome& des) {
+bool DSMGA2::backMixingE(Chromosome& source, list<int>& mask, Chromosome& des) {
 
     Chromosome trial(ell);
     trial = des;
@@ -417,7 +432,7 @@ void DSMGA2::backMixingE(Chromosome& source, list<int>& mask, Chromosome& des) {
         EQ = false;
         des = trial;
 
-return;
+        return true;
     }
 
     //2016-10-21
@@ -426,9 +441,11 @@ return;
         pHash[trial.getKey()] = trial.getFitness();
 
         des = trial;
-        return;
+
+        return true;
     }
 
+    return false;
 }
 
 bool DSMGA2::restrictedMixing(Chromosome& ch, list<int>& mask) {

@@ -23,8 +23,35 @@ struct Record {
     double nfe;
     double gen;
     double nfe_std;
+
+    int rmSuccess = 0;
+    int rmFail = 0;
+    int bmSuccess = 0;
+    int bmFail = 0;
+    double rmRate = 0;
+    double bmRate = 0;
+    int successCnt = 0;
 };
 
+void initCnt(Record& rec) {
+    rec.rmSuccess = 0;
+    rec.rmFail = 0;
+    rec.bmSuccess = 0;
+    rec.bmFail = 0;
+    rec.rmRate = 0;
+    rec.bmRate = 0;
+    rec.successCnt = 0;
+}
+
+void addGaCnt(Record& rec, const DSMGA2& ga) {
+    rec.rmSuccess += ga.rmSuccess;
+    rec.rmFail += ga.rmFail;
+    rec.bmSuccess += ga.bmSuccess;
+    rec.bmFail += ga.bmFail;
+    rec.rmRate += 1.0 * ga.rmSuccess / max(ga.rmFail+ga.rmSuccess, 1);
+    rec.bmRate += 1.0 * ga.bmSuccess / max(ga.bmFail+ga.bmSuccess, 1);
+    rec.successCnt++;
+}
 
 bool parseLine(string line, int popu, bool& foundOptima, double& nfe) {
     int pos = line.find("]");
@@ -154,8 +181,7 @@ int main (int argc, char *argv[]) {
         loadMKP(filename, &myMKP);
         ell = myMKP.var;
     }
-
-
+    
     bool foundOptima;
     Record rec[3];
     rec[0].n = nInitial;
@@ -170,6 +196,8 @@ int main (int argc, char *argv[]) {
 
     for (int i=0; i<3; ++i) {
         popu = rec[i].n;
+
+        initCnt(rec[i]);
 
         bool loaded = false;
         if (record.is_open() && !failLoad) {
@@ -208,6 +236,8 @@ int main (int argc, char *argv[]) {
                     break;
                 }
 
+                addGaCnt(rec[i], ga);
+
                 if (SHOW_BISECTION) {
                     printf("+");
                     fflush(NULL);
@@ -238,6 +268,8 @@ int main (int argc, char *argv[]) {
         step /= 2;
         popu = rec[1].n;
 
+        initCnt(rec[1]);
+
         if (SHOW_BISECTION) printf("[%d]: ", popu);
 
         for (int j=0; j<numConvergence; j++) {
@@ -260,6 +292,7 @@ int main (int argc, char *argv[]) {
                 }
                 break;
             }
+            addGaCnt(rec[1], ga);
 
             if (SHOW_BISECTION) {
                 printf("+");
@@ -288,6 +321,8 @@ int main (int argc, char *argv[]) {
         rec[0] = rec[1];
         rec[1] = rec[2];
         rec[2].n = popu;
+
+        initCnt(rec[2]);
 
         bool loaded = false;
         if (record.is_open() && !failLoad) {
@@ -327,6 +362,7 @@ int main (int argc, char *argv[]) {
                     }
                     break;
                 }
+                addGaCnt(rec[2], ga);
 
                 if (SHOW_BISECTION) {
                     printf("+");
@@ -360,6 +396,7 @@ int main (int argc, char *argv[]) {
     while ( ((rec[2].n-rec[0].n)*20 > rec[1].n) && (rec[2].n>rec[1].n+1) && (rec[1].n>rec[0].n+1)) {
 
         q1.n = (rec[0].n + rec[1].n) / 2;
+        initCnt(q1);
 
         bool loaded = false;
         if (record.is_open() && !failLoad) {
@@ -388,6 +425,8 @@ int main (int argc, char *argv[]) {
                     }
                     break;
                 }
+                addGaCnt(q1, ga);
+
                 if (SHOW_BISECTION) {
                     printf("+");
                     fflush(NULL);
@@ -419,6 +458,7 @@ int main (int argc, char *argv[]) {
             q1.nfe = INF;
 
         q3.n = (rec[1].n + rec[2].n) / 2;
+        initCnt(q3);
 
         loaded = false;
         if (record.is_open() && !failLoad) {
@@ -447,6 +487,8 @@ int main (int argc, char *argv[]) {
                     }
                     break;
                 }
+                addGaCnt(q3, ga);
+
                 if (SHOW_BISECTION) {
                     printf("+");
                     fflush(NULL);
@@ -490,12 +532,17 @@ int main (int argc, char *argv[]) {
     if (fffff == 4)
         freeNKWAProblem(&nkwa);
 
-    if (fffff == 9)
-        freeMKPinstance(&myMKP);
+    int rmSuccess = rec[1].rmSuccess;
+    int rmFail = rec[1].rmFail;
+    int bmSuccess = rec[1].bmSuccess;
+    int bmFail = rec[1].bmFail;
+    double rmRate = rec[1].rmRate / rec[1].successCnt;
+    double bmRate = rec[1].bmRate / rec[1].successCnt;
 
-    printf("ELL: %i\n", ell);
     printf("population: %d\n", rec[1].n);
     printf("generation: %f\n", rec[1].gen);
+    printf ("RM_Success: %i %i %.5f %%\n", rmSuccess, rmFail, (100.0 * rmRate));
+    printf ("BM_Success: %i %i %.5f %%\n", bmSuccess, bmFail, (100.0 * bmRate));
     printf("NFE: %f\n", rec[1].nfe);
     printf("N_std: %f\n", rec[1].nfe_std);
 

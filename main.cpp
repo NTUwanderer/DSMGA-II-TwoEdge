@@ -93,6 +93,14 @@ main (int argc, char *argv[]) {
     int failNum = 0;
     double* bestFs = new double[repeat];
 
+    int rmSuccess = 0;
+    int rmFail = 0;
+    int bmSuccess = 0;
+    int bmFail = 0;
+    double rmRate = 0;
+    double bmRate = 0;
+    int successCnt = 0;
+
     for (i = 0; i < repeat; i++) {
 
         DSMGA2 ga (ell, nInitial, maxGen, maxFe, fffff);
@@ -108,6 +116,14 @@ main (int argc, char *argv[]) {
             failNum++;
             printf ("-");
         } else {
+            rmSuccess += ga.rmSuccess;
+            rmFail += ga.rmFail;
+            bmSuccess += ga.bmSuccess;
+            bmFail += ga.bmFail;
+            rmRate += 1.0 * ga.rmSuccess / max(ga.rmFail+ga.rmSuccess, 1);
+            bmRate += 1.0 * ga.bmSuccess / max(ga.bmFail+ga.bmSuccess, 1);
+            ++successCnt;
+
             stFE.record (Chromosome::hitnfe);
             stLSFE.record (Chromosome::lsnfe);
             stGen.record (usedGen);
@@ -117,12 +133,17 @@ main (int argc, char *argv[]) {
         fflush (NULL);
 
     }
+    rmRate /= successCnt;
+    bmRate /= successCnt;
+
     cout<<endl; 
     // printf ("%f  %f  %f %d\n", stGen.getMean (), stFE.getMean(), stLSFE.getMean(), failNum);
     printf ("\n");
     printf ("ELL: %i\n", ell);
     printf ("Gen: %f\n", stGen.getMean ());
     printf ("FailNum: %d\n", failNum);
+    printf ("RM_Success: %i %i %.5f %%\n", rmSuccess, rmFail, (100.0 * rmRate));
+    printf ("BM_Success: %i %i %.5f %%\n", bmSuccess, bmFail, (100.0 * bmRate));
     printf ("LSNFE: %f\n", stLSFE.getMean());
     printf ("NFE: %f\n", stFE.getMean());
     printf ("N_std: %f\n", stFE.getStdev());
