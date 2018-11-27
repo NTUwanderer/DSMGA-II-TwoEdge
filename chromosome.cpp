@@ -93,6 +93,19 @@ double Chromosome::getFitness () {
     }
 }
 
+double Chromosome::freeGetFitness () {
+    if (evaluated)
+        return fitness;
+    else {
+        fitness = freeEvaluate();
+        if (!hit && fitness > getMaxFitness()) {
+            hit = true;
+            hitnfe = nfe+lsnfe;
+        }
+        return fitness;
+    }
+}
+
 bool Chromosome::isEvaluated () const {
     return evaluated;
 }
@@ -161,6 +174,58 @@ double Chromosome::evaluate () {
 
 }
 
+
+double Chromosome::freeEvaluate () {
+
+
+    if (CACHE)
+        if (hasSeen()) {
+            evaluated = true;
+            return cache[key];
+        }
+
+    evaluated = true;
+    double accum = 0.0;
+
+    switch (function) {
+        case ONEMAX:
+            accum = oneMax();
+            break;
+        case MKTRAP:
+            accum = mkTrap(1, 0.8);
+            break;
+        case CYCTRAP:
+            accum = cycTrap(1, 0.8);
+            break;
+        case FTRAP:
+            accum = fTrap();
+            break;
+        case SPINGLASS:
+            accum = spinGlass();
+            break;
+        case NK:
+            accum = nkFitness();
+            break;
+        case SAT:
+            accum = satFitness();
+            break;
+        case L_FTRAP:
+            accum = l_fTrap();
+            break;
+        case L_2FTRAP:
+            accum = l_2fTrap();
+            break;
+        case MKP:
+            accum = mkpFitness();
+            break;
+        default:
+            accum = mkTrap(1, 0.8);
+            break;
+    }
+
+    return accum;
+
+}
 
 
 double
@@ -506,6 +571,35 @@ bool Chromosome::tryFlipping(int index) {
 
 }
 
+bool Chromosome::freeTryFlipping(int index) {
+
+    int oldNFE = nfe;
+
+    double oldF = freeGetFitness();
+    flip(index);
+
+    //2016-10-21
+    if (freeGetFitness() - EPSILON <= oldF) {
+    //if (getFitness() <= oldF) {
+        flip(index);
+        evaluated = true;
+        fitness = oldF;
+
+        lsnfe += nfe - oldNFE;
+        nfe = oldNFE;
+
+        return false;
+    } else {
+
+        lsnfe += nfe - oldNFE;
+        nfe = oldNFE;
+
+        return true;
+    }
+
+
+}
+
 bool Chromosome::GHC() {
 
     int* order = new int [length];
@@ -517,6 +611,34 @@ bool Chromosome::GHC() {
     }
 
     delete []order;
+    return flag;
+
+}
+
+bool Chromosome::freeGHC() {
+
+    int old_nfe = nfe;
+    int old_lsnfe = lsnfe;
+    int old_hitnfe = hitnfe;
+    bool old_hit = hit;
+
+    int* order = new int [length];
+    myRand.uniformArray(order, length, 0, length-1);
+
+    bool flag = false;
+    for (int i=0; i<length; ++i) {
+        if (freeTryFlipping(order[i])) flag = true;
+    }
+
+    delete []order;
+
+    nfe = old_nfe;
+    lsnfe = old_lsnfe;
+    if (!hit) {
+        hitnfe = old_hitnfe;
+        hit = old_hit;
+    }
+
     return flag;
 
 }

@@ -37,6 +37,7 @@ public:
     bool hasSeen() const;
 
     bool GHC();
+    bool freeGHC();
     void steepestDescent();
 
     void init (int _ell);
@@ -44,6 +45,7 @@ public:
     void initR (int _ell);
 
     bool tryFlipping (int index);
+    bool freeTryFlipping (int index);
 
     int getVal (int index) const {
         assert (index >= 0 && index < length);
@@ -102,6 +104,7 @@ public:
 
     /** real evaluator */
     double evaluate ();
+    double freeEvaluate ();
 
     bool isEvaluated () const;
 
@@ -109,6 +112,7 @@ public:
     Chromosome & operator= (const Chromosome & c);
 
     double getFitness ();
+    double freeGetFitness ();
     double trap (int u, double high, double low, int trapK) const;
     double oneMax () const;
     double mkTrap (double high, double low) const;

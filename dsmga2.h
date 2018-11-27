@@ -108,6 +108,7 @@ public:
     double lastMax, lastMean, lastMin;
     int convergeCount;
 
+    void freeGHC(Chromosome&);
 };
 
 

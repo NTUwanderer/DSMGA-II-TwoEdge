@@ -342,7 +342,12 @@ void DSMGA2::restrictedMixing(Chromosome& ch) {
                 ++bmSuccess;
             else
                 ++bmFail;
+
+            if (bmS)
+                freeGHC(population[orderN[i]]);
         }
+
+        freeGHC(ch);
     }
 
 }
@@ -767,4 +772,13 @@ void DSMGA2::tournamentSelection () {
 }
 double DSMGA2::bestF () {
     return population[bestIndex].getFitness();
+}
+
+void DSMGA2::freeGHC(Chromosome& ch) {
+    Chromosome oldCh(ell);
+    oldCh = ch;
+    if (ch.freeGHC()) {
+        pHash.erase(oldCh.getKey());
+        pHash[ch.getKey()] = ch.getFitness();
+    }
 }
