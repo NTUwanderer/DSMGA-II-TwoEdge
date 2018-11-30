@@ -69,6 +69,7 @@ public:
     list<int> *masks;
     int *selectionIndex;
     int *orderN;                             // for random order
+    int *orderN2;                             // for random order
     int *orderELL;                             // for random order
     int selectionPressure;
     int maxGen;

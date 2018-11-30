@@ -42,6 +42,7 @@ DSMGA2::DSMGA2 (int n_ell, int n_nInitial, int n_maxGen, int n_maxFe, int fffff)
     masks = new list<int>[ell];
     selectionIndex = new int[nCurrent];
     orderN = new int[nCurrent];
+    orderN2 = new int[nCurrent];
     orderELL = new int[ell];
     population = new Chromosome[nCurrent];
     fastCounting = new FastCounting[ell];
@@ -72,6 +73,7 @@ DSMGA2::DSMGA2 (int n_ell, int n_nInitial, int n_maxGen, int n_maxFe, int fffff)
 DSMGA2::~DSMGA2 () {
     delete []masks;
     delete []orderN;
+    delete []orderN2;
     delete []orderELL;
     delete []selectionIndex;
     delete []population;
@@ -557,8 +559,10 @@ void DSMGA2::mixing() {
     for (int k=0; k<repeat; ++k) {
 
         genOrderN();
+        for (int i=0; i<nCurrent; ++i)
+            orderN2[i] = orderN[i];
         for (int i=0; i<nCurrent; ++i) {
-            restrictedMixing(population[orderN[i]]);
+            restrictedMixing(population[orderN2[i]]);
             if (Chromosome::hit) break;
         }
         if (Chromosome::hit) break;
