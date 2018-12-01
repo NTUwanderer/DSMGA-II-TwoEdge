@@ -521,6 +521,22 @@ bool Chromosome::GHC() {
 
 }
 
+bool Chromosome::GHC(list<int> mask) {
+
+    int* order = new int [length];
+    myRand.uniformArray(order, length, 0, length-1);
+
+    bool flag = false;
+    for (list<int>::iterator it = mask.begin(); it != mask.end(); ++it) {
+        int i = *it;
+        if (tryFlipping(order[i])) flag = true;
+    }
+
+    delete []order;
+    return flag;
+
+}
+
 double Chromosome::satFitness() const {
     int *x = new int[length];
 

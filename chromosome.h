@@ -5,6 +5,7 @@
 #ifndef _CHROMOSOME_H
 #define _CHROMOSOME_H
 
+#include <list>
 #include <unordered_map>
 #include "global.h"
 #include "nk-wa.h"
@@ -37,6 +38,7 @@ public:
     bool hasSeen() const;
 
     bool GHC();
+    bool GHC(list<int> mask);
     void steepestDescent();
 
     void init (int _ell);

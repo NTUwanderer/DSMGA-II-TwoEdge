@@ -344,7 +344,16 @@ void DSMGA2::restrictedMixing(Chromosome& ch) {
                 ++bmSuccess;
             else
                 ++bmFail;
+
+            if (bmS) {
+                pHash.erase(population[orderN[i]].getKey());
+                population[orderN[i]].GHC(mask);
+                pHash[population[orderN[i]].getKey()] = population[orderN[i]].getFitness();
+            }
         }
+        pHash.erase(ch.getKey());
+        ch.GHC(mask);
+        pHash[ch.getKey()] = ch.getFitness();
     }
 
 }
