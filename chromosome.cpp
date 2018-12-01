@@ -521,6 +521,17 @@ bool Chromosome::GHC() {
 
 }
 
+bool Chromosome::GHC(list<int> mask) {
+
+    bool flag = false;
+    for (list<int>::iterator it = mask.begin(); it != mask.end(); ++it) {
+        if (tryFlipping(*it)) flag = true;
+    }
+
+    return flag;
+
+}
+
 double Chromosome::satFitness() const {
     int *x = new int[length];
 
