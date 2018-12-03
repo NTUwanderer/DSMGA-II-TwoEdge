@@ -72,6 +72,8 @@ public:
     int *orderN2;                             // for random order
     int *orderELL;                             // for random order
     double *ellValue;
+    int *ellSuccessCnt;
+    int *ellNfeCnt;
     int selectionPressure;
     int maxGen;
     int maxFe;

@@ -45,6 +45,8 @@ DSMGA2::DSMGA2 (int n_ell, int n_nInitial, int n_maxGen, int n_maxFe, int fffff)
     orderN2 = new int[nCurrent];
     orderELL = new int[ell];
     ellValue = new double[ell];
+    ellSuccessCnt = new int[ell];
+    ellNfeCnt = new int[ell];
     population = new Chromosome[nCurrent];
     fastCounting = new FastCounting[ell];
 
@@ -58,6 +60,10 @@ DSMGA2::DSMGA2 (int n_ell, int n_nInitial, int n_maxGen, int n_maxFe, int fffff)
 
     for (int i = 0; i < ell; i++)
         ellValue[i] = 0.0;
+    for (int i = 0; i < ell; i++) {
+        ellSuccessCnt[i] = 0;
+        ellNfeCnt[i] = 0;
+    }
 
     pHash.clear();
     for (int i=0; i<nCurrent; ++i) {
@@ -79,6 +85,8 @@ DSMGA2::~DSMGA2 () {
     delete []orderN2;
     delete []orderELL;
     delete []ellValue;
+    delete []ellSuccessCnt;
+    delete []ellNfeCnt;
     delete []selectionIndex;
     delete []population;
     delete []fastCounting;
@@ -308,10 +316,11 @@ void DSMGA2::findMask(Chromosome& ch, list<int>& result,int startNode){
 
 void DSMGA2::restrictedMixing(Chromosome& ch) {
     
-    buildEllValue(ch);
+    // buildEllValue(ch);
     int startNode = myRand.uniformInt(0, ell - 1);    
     int challenge = myRand.uniformInt(0, ell - 1);
-    if (ellValue[challenge] < ellValue[startNode])
+    // if (ellValue[challenge] < ellValue[startNode])
+    if (1.0 * ellSuccessCnt[challenge] / ellNfeCnt[challenge] > 1.0 * ellSuccessCnt[startNode] / ellNfeCnt[startNode])
         startNode = challenge;
     
 
@@ -329,7 +338,12 @@ void DSMGA2::restrictedMixing(Chromosome& ch) {
     while (mask.size() > size)
         mask.pop_back();
    
+    ellNfeCnt[startNode] -= Chromosome::nfe;
     bool taken = restrictedMixing(ch, mask);
+    ellNfeCnt[startNode] += Chromosome::nfe;
+    if (taken)
+        ellSuccessCnt[startNode] += 1;
+
     if (taken)
         ++rmSuccess;
     else
