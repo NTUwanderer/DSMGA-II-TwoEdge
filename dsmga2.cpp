@@ -320,7 +320,7 @@ void DSMGA2::restrictedMixing(Chromosome& ch) {
     int startNode = myRand.uniformInt(0, ell - 1);    
     int challenge = myRand.uniformInt(0, ell - 1);
     // if (ellValue[challenge] < ellValue[startNode])
-    if (1.0 * ellSuccessCnt[challenge] / ellNfeCnt[challenge] > 1.0 * ellSuccessCnt[startNode] / ellNfeCnt[startNode])
+    if (1.0 * ellSuccessCnt[challenge] / ellNfeCnt[challenge] < 1.0 * ellSuccessCnt[startNode] / ellNfeCnt[startNode])
         startNode = challenge;
     
 
