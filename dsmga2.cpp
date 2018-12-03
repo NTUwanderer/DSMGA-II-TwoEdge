@@ -347,12 +347,16 @@ void DSMGA2::restrictedMixing(Chromosome& ch) {
 
             if (bmS) {
                 pHash.erase(population[orderN[i]].getKey());
-                population[orderN[i]].GHC(mask);
+                list<int> supply;
+                findSupply(population[orderN[i]], supply);
+                population[orderN[i]].GHC(supply);
                 pHash[population[orderN[i]].getKey()] = population[orderN[i]].getFitness();
             }
         }
         pHash.erase(ch.getKey());
-        ch.GHC(mask);
+        list<int> supply;
+        findSupply(ch, supply);
+        ch.GHC(supply); // This change to supply.
         pHash[ch.getKey()] = ch.getFitness();
     }
 
@@ -509,6 +513,24 @@ bool DSMGA2::restrictedMixing(Chromosome& ch, list<int>& mask) {
 
     return taken;
 
+}
+
+void DSMGA2::findSupply(Chromosome& ch, list<int>& result) const {
+
+    DLLA candidate(nCurrent);
+    for (int i=0; i<nCurrent; ++i)
+        candidate.insert(i);
+
+    for (int i=0; i < ell; ++i) {
+        int allele = ch.getVal(i);
+
+        for (DLLA::iterator it2 = candidate.begin(); it2 != candidate.end(); ++it2) {
+            if (population[*it2].getVal(i) == !allele)
+            {   result.push_back(i);
+                break;
+            }
+        }
+    }
 }
 
 size_t DSMGA2::findSize(Chromosome& ch, list<int>& mask) const {

@@ -104,6 +104,7 @@ public:
 
     size_t findSize(Chromosome&, list<int>&) const;
     size_t findSize(Chromosome&, list<int>&, Chromosome&) const;
+    void findSupply(Chromosome& ch, list<int>& result) const;
     
     bool converged();
     double lastMax, lastMean, lastMin;

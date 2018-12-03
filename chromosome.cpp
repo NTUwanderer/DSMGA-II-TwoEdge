@@ -4,6 +4,7 @@
 
 #include <cstdio>
 #include <cstring>
+#include <algorithm>
 #include "spin.h"
 #include "chromosome.h"
 #include "nk-wa.h"
@@ -523,13 +524,18 @@ bool Chromosome::GHC() {
 
 bool Chromosome::GHC(list<int> mask) {
 
-    int* order = new int [length];
-    myRand.uniformArray(order, length, 0, length-1);
+    int ll = mask.size();
+    vector<int> cpy(ll);
+
+    copy(mask.begin(), mask.end(), cpy.begin());
+
+    int* order = new int [ll];
+    myRand.uniformArray(order, ll, 0, ll-1);
+    
 
     bool flag = false;
-    for (list<int>::iterator it = mask.begin(); it != mask.end(); ++it) {
-        int i = *it;
-        if (tryFlipping(order[i])) flag = true;
+    for (int i = 0; i < ll; ++i) {
+        if (tryFlipping(cpy[order[i]])) flag = true;
     }
 
     delete []order;
