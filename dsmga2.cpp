@@ -517,19 +517,12 @@ bool DSMGA2::restrictedMixing(Chromosome& ch, list<int>& mask) {
 
 void DSMGA2::findSupply(Chromosome& ch, list<int>& result) const {
 
-    DLLA candidate(nCurrent);
-    for (int i=0; i<nCurrent; ++i)
-        candidate.insert(i);
-
     for (int i=0; i < ell; ++i) {
         int allele = ch.getVal(i);
+        int ones = countOne(i);
 
-        for (DLLA::iterator it2 = candidate.begin(); it2 != candidate.end(); ++it2) {
-            if (population[*it2].getVal(i) == !allele)
-            {   result.push_back(i);
-                break;
-            }
-        }
+        if ((!allele && ones > 0) || (allele && ones < nCurrent)) 
+            result.push_back(i);
     }
 }
 
