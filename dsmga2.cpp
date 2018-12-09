@@ -62,7 +62,7 @@ DSMGA2::DSMGA2 (int n_ell, int n_nInitial, int n_maxGen, int n_maxFe, int fffff)
         ellValue[i] = 0.0;
     for (int i = 0; i < ell; i++) {
         ellSuccessCnt[i] = 0;
-        ellNfeCnt[i] = 0;
+        ellNfeCnt[i] = 1;
     }
 
     pHash.clear();
@@ -320,7 +320,9 @@ void DSMGA2::restrictedMixing(Chromosome& ch) {
     int startNode = myRand.uniformInt(0, ell - 1);    
     int challenge = myRand.uniformInt(0, ell - 1);
     // if (ellValue[challenge] < ellValue[startNode])
-    if (1.0 * ellSuccessCnt[challenge] / ellNfeCnt[challenge] < 1.0 * ellSuccessCnt[startNode] / ellNfeCnt[startNode])
+    double ind1 = 1.0 * ellSuccessCnt[challenge] / ellNfeCnt[challenge];
+    double ind2 = 1.0 * ellSuccessCnt[startNode] / ellNfeCnt[startNode];
+    if (ind1 < ind2)
         startNode = challenge;
     
 
