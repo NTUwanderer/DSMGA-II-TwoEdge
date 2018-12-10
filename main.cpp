@@ -101,6 +101,15 @@ main (int argc, char *argv[]) {
     double bmRate = 0;
     int successCnt = 0;
 
+    double* ind1 = new double[ell];
+    double* ind2 = new double[ell];
+    double* ind3 = new double[ell];
+    for (int i = 0; i < ell; ++i) {
+        ind1[i] = 0.0;
+        ind2[i] = 0.0;
+        ind3[i] = 0.0;
+    }
+
     for (i = 0; i < repeat; i++) {
 
         DSMGA2 ga (ell, nInitial, maxGen, maxFe, fffff);
@@ -122,6 +131,11 @@ main (int argc, char *argv[]) {
             bmFail += ga.bmFail;
             rmRate += 1.0 * ga.rmSuccess / max(ga.rmFail+ga.rmSuccess, 1);
             bmRate += 1.0 * ga.bmSuccess / max(ga.bmFail+ga.bmSuccess, 1);
+            for (int i = 0; i < ell; ++i) {
+                ind1[i] += 1.0 * ga.cntS1[i] / max(ga.cntS1[i]+ga.cntF1[i], 1);
+                ind2[i] += 1.0 * ga.cntS2[i] / max(ga.cntS2[i]+ga.cntF2[i], 1);
+                ind3[i] += 1.0 * ga.cntS3[i] / max(ga.cntS3[i]+ga.cntF3[i], 1);
+            }
             ++successCnt;
 
             stFE.record (Chromosome::hitnfe);
@@ -135,6 +149,11 @@ main (int argc, char *argv[]) {
     }
     rmRate /= successCnt;
     bmRate /= successCnt;
+    for (int i = 0; i < ell; ++i) {
+        ind1[i] /= successCnt;
+        ind2[i] /= successCnt;
+        ind3[i] /= successCnt;
+    }
 
     cout<<endl; 
     // printf ("%f  %f  %f %d\n", stGen.getMean (), stFE.getMean(), stLSFE.getMean(), failNum);
@@ -144,6 +163,19 @@ main (int argc, char *argv[]) {
     printf ("FailNum: %d\n", failNum);
     printf ("RM_Success: %i %i %.5f %%\n", rmSuccess, rmFail, (100.0 * rmRate));
     printf ("BM_Success: %i %i %.5f %%\n", bmSuccess, bmFail, (100.0 * bmRate));
+    printf ("ind1:");
+    for (int i = 0; i < ell; ++i) {
+        printf (" %lf", ind1[i]);
+    }
+    printf ("\nind2:");
+    for (int i = 0; i < ell; ++i) {
+        printf (" %lf", ind2[i]);
+    }
+    printf ("\nind3:");
+    for (int i = 0; i < ell; ++i) {
+        printf (" %lf", ind3[i]);
+    }
+    printf ("\n");
     printf ("LSNFE: %f\n", stLSFE.getMean());
     printf ("NFE: %f\n", stFE.getMean());
     printf ("N_std: %f\n", stFE.getStdev());
@@ -153,6 +185,9 @@ main (int argc, char *argv[]) {
     printf ("\n");
 
     delete[] bestFs;
+    delete[] ind1;
+    delete[] ind2;
+    delete[] ind3;
 
     if (fffff == 4) freeNKWAProblem(&nkwa);
     if (fffff == 9) freeMKPinstance(&myMKP);

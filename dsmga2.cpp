@@ -55,6 +55,13 @@ DSMGA2::DSMGA2 (int n_ell, int n_nInitial, int n_maxGen, int n_maxFe, int fffff)
     bmSuccess = 0;
     bmFail = 0;
 
+    cntS1.resize(ell, 0);
+    cntS2.resize(ell, 0);
+    cntS3.resize(ell, 0);
+    cntF1.resize(ell, 0);
+    cntF2.resize(ell, 0);
+    cntF3.resize(ell, 0);
+
     for (int i = 0; i < ell; i++)
         fastCounting[i].init(nCurrent);
 
@@ -316,16 +323,33 @@ void DSMGA2::findMask(Chromosome& ch, list<int>& result,int startNode){
 
 void DSMGA2::restrictedMixing(Chromosome& ch) {
     
-    // buildEllValue(ch);
+    buildEllValue(ch);
     int startNode = myRand.uniformInt(0, ell - 1);    
-    int challenge = myRand.uniformInt(0, ell - 1);
-    // if (ellValue[challenge] < ellValue[startNode])
-    double ind1 = 1.0 * ellSuccessCnt[challenge] / ellNfeCnt[challenge];
-    double ind2 = 1.0 * ellSuccessCnt[startNode] / ellNfeCnt[startNode];
-    if (ind1 < ind2)
-        startNode = challenge;
-    
-
+    double* value1 = new double[ell];
+    double* value2 = new double[ell];
+    double* value3 = new double[ell];
+    for (int i = 0; i < ell; ++i) {
+        value1[i] = ellValue[i];
+        value2[i] = -1;
+        for (int j = 0; j < ell; ++j) {
+            if (j == i)
+                continue;
+            pair<double, double> p = graph(i, j);
+            value2[i] = max(value2[i], (ch.getVal(i) == ch.getVal(j)) ? p.first : p.second);
+        }
+        value3[i] = 1.0 * ellSuccessCnt[i] / ellNfeCnt[i];
+    }
+    int rank1 = ell-1, rank2 = ell-1, rank3 = ell-1;
+    for (int i = 0; i < ell; ++i) {
+        if (i == startNode)
+            continue;
+        if (value1[startNode] >= value1[i])
+            --rank1;
+        if (value2[startNode] >= value2[i])
+            --rank2;
+        if (value3[startNode] >= value3[i])
+            --rank3;
+    }
 
     list<int> mask;
 	findMask(ch, mask,startNode);
@@ -345,6 +369,16 @@ void DSMGA2::restrictedMixing(Chromosome& ch) {
     ellNfeCnt[startNode] += Chromosome::nfe;
     if (taken)
         ellSuccessCnt[startNode] += 1;
+
+    if (taken) {
+        cntS1[rank1]++;
+        cntS2[rank2]++;
+        cntS3[rank3]++;
+    } else {
+        cntF1[rank1]++;
+        cntF2[rank2]++;
+        cntF3[rank3]++;
+    }
 
     if (taken)
         ++rmSuccess;
