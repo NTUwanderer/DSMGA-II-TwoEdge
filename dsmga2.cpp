@@ -340,21 +340,29 @@ void DSMGA2::restrictedMixing(Chromosome& ch) {
         value3[i] = 1.0 * ellSuccessCnt[i] / ellNfeCnt[i];
     }
     int rank1 = ell-1, rank2 = ell-1, rank3 = ell-1;
+    int eq1 = 1, eq2 = 1, eq3 = 1;
     for (int i = 0; i < ell; ++i) {
         if (i == startNode)
             continue;
-        if (value1[startNode] >= value1[i])
+        if (value1[startNode] >= value1[i] - EPSILON)
             --rank1;
-        if (value2[startNode] >= value2[i])
+        if (value2[startNode] >= value2[i] - EPSILON)
             --rank2;
-        if (value3[startNode] >= value3[i])
+        if (value3[startNode] >= value3[i] - EPSILON)
             --rank3;
+
+        if (value1[startNode] >= value1[i] - EPSILON && value1[startNode] <= value1[i] + EPSILON)
+            ++eq1;
+        if (value2[startNode] >= value2[i] - EPSILON && value2[startNode] <= value2[i] + EPSILON)
+            ++eq2;
+        if (value3[startNode] >= value3[i] - EPSILON && value3[startNode] <= value3[i] + EPSILON)
+            ++eq3;
     }
 
     list<int> mask;
 	findMask(ch, mask,startNode);
     size_t size = findSize(ch, mask);
-   
+
     list<int> mask_size; 
     findMask_size(ch,mask_size,startNode,size);
     size_t size_original = findSize(ch,mask_size);
@@ -363,7 +371,7 @@ void DSMGA2::restrictedMixing(Chromosome& ch) {
         size = size_original;
     while (mask.size() > size)
         mask.pop_back();
-   
+
     ellNfeCnt[startNode] -= Chromosome::nfe;
     bool taken = restrictedMixing(ch, mask);
     ellNfeCnt[startNode] += Chromosome::nfe;
@@ -371,13 +379,19 @@ void DSMGA2::restrictedMixing(Chromosome& ch) {
         ellSuccessCnt[startNode] += 1;
 
     if (taken) {
-        cntS1[rank1]++;
-        cntS2[rank2]++;
-        cntS3[rank3]++;
+        for (int i = 0; i < eq1; ++i)
+            cntS1[rank1 + i]++;
+        for (int i = 0; i < eq2; ++i)
+            cntS2[rank2 + i]++;
+        for (int i = 0; i < eq3; ++i)
+            cntS3[rank3 + i]++;
     } else {
-        cntF1[rank1]++;
-        cntF2[rank2]++;
-        cntF3[rank3]++;
+        for (int i = 0; i < eq1; ++i)
+            cntF1[rank1 + i]++;
+        for (int i = 0; i < eq2; ++i)
+            cntF2[rank2 + i]++;
+        for (int i = 0; i < eq3; ++i)
+            cntF3[rank3 + i]++;
     }
 
     if (taken)
