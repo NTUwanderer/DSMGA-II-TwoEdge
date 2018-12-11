@@ -308,10 +308,28 @@ void DSMGA2::findMask(Chromosome& ch, list<int>& result,int startNode){
 
 void DSMGA2::restrictedMixing(Chromosome& ch) {
     
-    buildEllValue(ch);
     int startNode = myRand.uniformInt(0, ell - 1);    
     int challenge = myRand.uniformInt(0, ell - 1);
-    if (ellValue[challenge] < ellValue[startNode])
+    double sValue = -1.0, cValue = -1.0;
+    for (int i = 0; i < ell; ++i) {
+        if (i == startNode)
+            continue;
+        pair<double, double> p = graph(startNode, i);
+        if (ch.getVal(i) == ch.getVal(startNode))
+            sValue = max(sValue, p.first);
+        else
+            sValue = max(sValue, p.second);
+    }
+    for (int i = 0; i < ell; ++i) {
+        if (i == challenge)
+            continue;
+        pair<double, double> p = graph(challenge, i);
+        if (ch.getVal(i) == ch.getVal(challenge))
+            cValue = max(cValue, p.first);
+        else
+            cValue = max(cValue, p.second);
+    }
+    if (cValue < sValue)
         startNode = challenge;
     
 
