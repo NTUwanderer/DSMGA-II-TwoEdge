@@ -321,10 +321,24 @@ void DSMGA2::findMask(Chromosome& ch, list<int>& result,int startNode){
   
 }
 
+void DSMGA2::retrieveRankEq(double* value, int node, int& rank, int& eq) {
+    rank = ell-1;
+    eq = 1;
+
+    for (int i = 0; i < ell; ++i) {
+        if (i == node)
+            continue;
+        if (value[node] >= value[i] - EPSILON)
+            --rank;
+        if (value[node] >= value[i] - EPSILON && value[node] <= value[i] + EPSILON)
+            ++eq;
+    }
+}
+
 void DSMGA2::restrictedMixing(Chromosome& ch) {
     
     buildEllValue(ch);
-    int startNode = myRand.uniformInt(0, ell - 1);    
+
     double* value1 = new double[ell];
     double* value2 = new double[ell];
     double* value3 = new double[ell];
@@ -339,25 +353,31 @@ void DSMGA2::restrictedMixing(Chromosome& ch) {
         }
         value3[i] = 1.0 * ellSuccessCnt[i] / ellNfeCnt[i];
     }
+    int startNode = myRand.uniformInt(0, ell - 1);
+    if (myRand.uniformInt(0, 1) == 0) {
+        int challenge = myRand.uniformInt(0, ell - 1);
+        int rankS, rankC, eqS, eqC;
+        retrieveRankEq(value1, startNode, rankS, eqS);
+        retrieveRankEq(value1, challenge, rankC, eqC);
+        int sS = 0, sF = 0, cS = 0, cF = 0;
+        for (int i = 0; i < eqS; ++i) {
+            sS += cntS1[rankS+i];
+            sF += cntF1[rankS+i];
+        }
+        for (int i = 0; i < eqC; ++i) {
+            cS += cntS1[rankC+i];
+            cF += cntF1[rankC+i];
+        }
+        if (sS * cF > cS * sF) {
+            startNode = challenge;
+        }
+    }
+
     int rank1 = ell-1, rank2 = ell-1, rank3 = ell-1;
     int eq1 = 1, eq2 = 1, eq3 = 1;
-    for (int i = 0; i < ell; ++i) {
-        if (i == startNode)
-            continue;
-        if (value1[startNode] >= value1[i] - EPSILON)
-            --rank1;
-        if (value2[startNode] >= value2[i] - EPSILON)
-            --rank2;
-        if (value3[startNode] >= value3[i] - EPSILON)
-            --rank3;
-
-        if (value1[startNode] >= value1[i] - EPSILON && value1[startNode] <= value1[i] + EPSILON)
-            ++eq1;
-        if (value2[startNode] >= value2[i] - EPSILON && value2[startNode] <= value2[i] + EPSILON)
-            ++eq2;
-        if (value3[startNode] >= value3[i] - EPSILON && value3[startNode] <= value3[i] + EPSILON)
-            ++eq3;
-    }
+    retrieveRankEq(value1, startNode, rank1, eq1);
+    retrieveRankEq(value2, startNode, rank2, eq2);
+    retrieveRankEq(value3, startNode, rank3, eq3);
 
     delete[] value1;
     delete[] value2;

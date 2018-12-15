@@ -114,6 +114,7 @@ public:
 
     void buildEllValue(const Chromosome&);
     vector<int> cntS1, cntS2, cntS3, cntF1, cntF2, cntF3;
+    void retrieveRankEq(double* value, int startNode, int& rank, int& eq);
 };
 
 
