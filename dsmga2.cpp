@@ -359,6 +359,9 @@ void DSMGA2::restrictedMixing(Chromosome& ch) {
             ++eq3;
     }
 
+    delete[] value1;
+    delete[] value2;
+    delete[] value3;
     list<int> mask;
 	findMask(ch, mask,startNode);
     size_t size = findSize(ch, mask);
