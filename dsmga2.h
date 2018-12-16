@@ -35,8 +35,9 @@ public:
     void findMask_size(Chromosome& ch, list<int>& mask,int startNode,int bound);
     void buildGraph_sizecheck();
     // ****
+    void restrictedMixingOne(Chromosome&);
     void restrictedMixing(Chromosome&);
-    bool restrictedMixing(Chromosome& ch, list<int>& mask);
+    bool restrictedMixing(Chromosome& ch, list<int>& mask, int initSize=1);
     bool backMixing(Chromosome& source, list<int>& mask, Chromosome& des);
     bool backMixingE(Chromosome& source, list<int>& mask, Chromosome& des);
 
