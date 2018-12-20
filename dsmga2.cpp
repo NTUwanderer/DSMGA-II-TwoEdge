@@ -339,56 +339,19 @@ void DSMGA2::restrictedMixingOne(Chromosome& ch) {
     
     buildEllValue(ch);
 
-    double* value1 = new double[ell];
-    double* value2 = new double[ell];
-    double* value3 = new double[ell];
-    for (int i = 0; i < ell; ++i) {
-        value1[i] = ellValue[i];
-        value2[i] = -1;
-        for (int j = 0; j < ell; ++j) {
-            if (j == i)
-                continue;
-            pair<double, double> p = graph(i, j);
-            value2[i] = max(value2[i], (ch.getVal(i) == ch.getVal(j)) ? p.first : p.second);
-        }
-        value3[i] = 1.0 * ellSuccessCnt[i] / ellNfeCnt[i];
-    }
     int startNode = myRand.uniformInt(0, ell - 1);
-
-    int rank1 = ell-1, rank2 = ell-1, rank3 = ell-1;
-    int eq1 = 1, eq2 = 1, eq3 = 1;
-    retrieveRankEq(value1, startNode, rank1, eq1);
-    retrieveRankEq(value2, startNode, rank2, eq2);
-    retrieveRankEq(value3, startNode, rank3, eq3);
-
-    delete[] value1;
-    delete[] value2;
-    delete[] value3;
+    if (myRand.uniformInt(0, 1) == 0) {
+        int challenge = myRand.uniformInt(0, ell - 1);
+        if (ellValue[challenge] > ellValue[startNode]) {
+            startNode = challenge;
+        }
+    }
     list<int> mask;
     mask.push_back(startNode);
 
     ellNfeCnt[startNode] -= Chromosome::nfe;
     bool taken = restrictedMixing(ch, mask);
     ellNfeCnt[startNode] += Chromosome::nfe;
-    if (taken)
-        ellSuccessCnt[startNode] += 1;
-
-    if (taken) {
-        for (int i = 0; i < eq1; ++i)
-            cntS1[rank1 + i]++;
-        for (int i = 0; i < eq2; ++i)
-            cntS2[rank2 + i]++;
-        for (int i = 0; i < eq3; ++i)
-            cntS3[rank3 + i]++;
-    } else {
-        for (int i = 0; i < eq1; ++i)
-            cntF1[rank1 + i]++;
-        for (int i = 0; i < eq2; ++i)
-            cntF2[rank2 + i]++;
-        for (int i = 0; i < eq3; ++i)
-            cntF3[rank3 + i]++;
-    }
-
     if (taken)
         ++rmSuccess;
     else
@@ -419,49 +382,14 @@ void DSMGA2::restrictedMixing(Chromosome& ch) {
     
     buildEllValue(ch);
 
-    double* value1 = new double[ell];
-    double* value2 = new double[ell];
-    double* value3 = new double[ell];
-    for (int i = 0; i < ell; ++i) {
-        value1[i] = ellValue[i];
-        value2[i] = -1;
-        for (int j = 0; j < ell; ++j) {
-            if (j == i)
-                continue;
-            pair<double, double> p = graph(i, j);
-            value2[i] = max(value2[i], (ch.getVal(i) == ch.getVal(j)) ? p.first : p.second);
-        }
-        value3[i] = 1.0 * ellSuccessCnt[i] / ellNfeCnt[i];
-    }
     int startNode = myRand.uniformInt(0, ell - 1);
     if (myRand.uniformInt(0, 1) == 0) {
         int challenge = myRand.uniformInt(0, ell - 1);
-        int rankS, rankC, eqS, eqC;
-        retrieveRankEq(value1, startNode, rankS, eqS);
-        retrieveRankEq(value1, challenge, rankC, eqC);
-        int sS = 0, sF = 0, cS = 0, cF = 0;
-        for (int i = 0; i < eqS; ++i) {
-            sS += cntS1[rankS+i];
-            sF += cntF1[rankS+i];
-        }
-        for (int i = 0; i < eqC; ++i) {
-            cS += cntS1[rankC+i];
-            cF += cntF1[rankC+i];
-        }
-        if (sS * cF < cS * sF) {
+        if (ellValue[challenge] < ellValue[startNode]) {
             startNode = challenge;
         }
     }
 
-    int rank1 = ell-1, rank2 = ell-1, rank3 = ell-1;
-    int eq1 = 1, eq2 = 1, eq3 = 1;
-    retrieveRankEq(value1, startNode, rank1, eq1);
-    retrieveRankEq(value2, startNode, rank2, eq2);
-    retrieveRankEq(value3, startNode, rank3, eq3);
-
-    delete[] value1;
-    delete[] value2;
-    delete[] value3;
     list<int> mask;
 	findMask(ch, mask,startNode);
     size_t size = findSize(ch, mask);
@@ -478,25 +406,6 @@ void DSMGA2::restrictedMixing(Chromosome& ch) {
     ellNfeCnt[startNode] -= Chromosome::nfe;
     bool taken = restrictedMixing(ch, mask, 2);
     ellNfeCnt[startNode] += Chromosome::nfe;
-    if (taken)
-        ellSuccessCnt[startNode] += 1;
-
-    if (taken) {
-        for (int i = 0; i < eq1; ++i)
-            cntS1[rank1 + i]++;
-        for (int i = 0; i < eq2; ++i)
-            cntS2[rank2 + i]++;
-        for (int i = 0; i < eq3; ++i)
-            cntS3[rank3 + i]++;
-    } else {
-        for (int i = 0; i < eq1; ++i)
-            cntF1[rank1 + i]++;
-        for (int i = 0; i < eq2; ++i)
-            cntF2[rank2 + i]++;
-        for (int i = 0; i < eq3; ++i)
-            cntF3[rank3 + i]++;
-    }
-
     if (taken)
         ++rmSuccess;
     else
@@ -737,10 +646,14 @@ void DSMGA2::mixing() {
         for (int i=0; i<nCurrent; ++i)
             orderN2[i] = orderN[i];
         for (int i=0; i<nCurrent; ++i) {
-            if (i < nCurrent/2)
-                restrictedMixingOne(population[orderN2[i]]);
-            else
-                restrictedMixing(population[orderN2[i]]);
+            restrictedMixingOne(population[orderN2[i]]);
+            if (Chromosome::hit) break;
+        }
+        genOrderN();
+        for (int i=0; i<nCurrent; ++i)
+            orderN2[i] = orderN[i];
+        for (int i=0; i<nCurrent; ++i) {
+            restrictedMixing(population[orderN2[i]]);
             if (Chromosome::hit) break;
         }
         if (Chromosome::hit) break;
