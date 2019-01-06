@@ -646,17 +646,12 @@ void DSMGA2::mixing() {
         for (int i=0; i<nCurrent; ++i)
             orderN2[i] = orderN[i];
         for (int i=0; i<nCurrent; ++i) {
-            restrictedMixingOne(population[orderN2[i]]);
+            if (i < nCurrent/2)
+                restrictedMixingOne(population[orderN2[i]]);
+            else
+                restrictedMixing(population[orderN2[i]]);
             if (Chromosome::hit) break;
         }
-        genOrderN();
-        for (int i=0; i<nCurrent; ++i)
-            orderN2[i] = orderN[i];
-        for (int i=0; i<nCurrent; ++i) {
-            restrictedMixing(population[orderN2[i]]);
-            if (Chromosome::hit) break;
-        }
-        if (Chromosome::hit) break;
     }
 
 
