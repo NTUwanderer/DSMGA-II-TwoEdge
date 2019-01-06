@@ -43,6 +43,7 @@ DSMGA2::DSMGA2 (int n_ell, int n_nInitial, int n_maxGen, int n_maxFe, int fffff)
     selectionIndex = new int[nCurrent];
     orderN = new int[nCurrent];
     orderN2 = new int[nCurrent];
+    orderN3 = new int[nCurrent];
     orderELL = new int[ell];
     ellValue = new double[ell];
     ellSuccessCnt = new int[ell];
@@ -90,6 +91,7 @@ DSMGA2::~DSMGA2 () {
     delete []masks;
     delete []orderN;
     delete []orderN2;
+    delete []orderN3;
     delete []orderELL;
     delete []ellValue;
     delete []ellSuccessCnt;
@@ -645,8 +647,12 @@ void DSMGA2::mixing() {
         genOrderN();
         for (int i=0; i<nCurrent; ++i)
             orderN2[i] = orderN[i];
+        genOrderN();
+        for (int i=0; i<nCurrent; ++i)
+            orderN3[i] = orderN[i];
+
         for (int i=0; i<nCurrent; ++i) {
-            if (myRand.uniformInt(0, 1) == 0)
+            if (orderN3[i] < nCurrent/2)
                 restrictedMixingOne(population[orderN2[i]]);
             else
                 restrictedMixing(population[orderN2[i]]);
