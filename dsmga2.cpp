@@ -646,7 +646,7 @@ void DSMGA2::mixing() {
         for (int i=0; i<nCurrent; ++i)
             orderN2[i] = orderN[i];
         for (int i=0; i<nCurrent; ++i) {
-            if (i < nCurrent/2)
+            if (myRand.uniformInt(0, 1) == 0)
                 restrictedMixingOne(population[orderN2[i]]);
             else
                 restrictedMixing(population[orderN2[i]]);
