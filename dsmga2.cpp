@@ -329,7 +329,7 @@ void DSMGA2::restrictedMixing(Chromosome& ch) {
         else
             cValue = max(cValue, p.second);
     }
-    if (cValue < sValue)
+    if (cValue > sValue)
         startNode = challenge;
     
 
